@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from disco.types.message import MessageEmbed
+from orca.types.message import MessageEmbed
 
 
 class TestEmbeds(TestCase):

@@ -1,37 +1,37 @@
 """
-This module tests that all of disco can be imported, mostly to help reduce issues
+This module tests that all of orca can be imported, mostly to help reduce issues
 with untested code that will not even parse/run on Py2/3
 """
-from disco.api.client import *
-from disco.api.http import *
-from disco.api.ratelimit import *
-from disco.bot.bot import *
-from disco.bot.command import *
-from disco.bot.parser import *
-from disco.bot.plugin import *
-from disco.bot.storage import *
-from disco.gateway.client import *
-from disco.gateway.events import *
-from disco.gateway.ipc import *
-from disco.gateway.packets import *
+from orca.api.client import *
+from orca.api.http import *
+from orca.api.ratelimit import *
+from orca.bot.bot import *
+from orca.bot.command import *
+from orca.bot.parser import *
+from orca.bot.plugin import *
+from orca.bot.storage import *
+from orca.gateway.client import *
+from orca.gateway.events import *
+from orca.gateway.ipc import *
+from orca.gateway.packets import *
 
 # Not imported, GIPC is required but not provided by default
-# from disco.gateway.sharder import *
-from disco.types.base import *
-from disco.types.channel import *
-from disco.types.guild import *
-from disco.types.invite import *
-from disco.types.message import *
-from disco.types.permissions import *
-from disco.types.user import *
-from disco.types.voice import *
-from disco.types.webhook import *
-from disco.util.backdoor import *
-from disco.util.config import *
-from disco.util.functional import *
-from disco.util.hashmap import *
-from disco.util.limiter import *
-from disco.util.logging import *
-from disco.util.serializer import *
-from disco.util.snowflake import *
-from disco.util.websocket import *
+# from orca.gateway.sharder import *
+from orca.types.base import *
+from orca.types.channel import *
+from orca.types.guild import *
+from orca.types.invite import *
+from orca.types.message import *
+from orca.types.permissions import *
+from orca.types.user import *
+from orca.types.voice import *
+from orca.types.webhook import *
+from orca.util.backdoor import *
+from orca.util.config import *
+from orca.util.functional import *
+from orca.util.hashmap import *
+from orca.util.limiter import *
+from orca.util.logging import *
+from orca.util.serializer import *
+from orca.util.snowflake import *
+from orca.util.websocket import *

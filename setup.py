@@ -1,7 +1,7 @@
 import sys
 from setuptools import setup, find_packages
 
-from disco import VERSION
+from orca import VERSION
 
 with open("requirements.txt") as f:
     requirements = f.readlines()
@@ -13,7 +13,7 @@ extras_require = {
     "voice": ["telecom-py==0.0.4"],
     "http": ["flask==0.12.2"],
     "yaml": ["pyyaml==3.12"],
-    "music": ["youtube_dl>=2018.1.21"],
+    "music": ["youtube_dl==2018.1.21"],
     "performance": [
         "erlpack==0.3.2" if sys.version_info.major == 2 else "earl-etf==2.1.2",
         "ujson==1.35",
@@ -24,13 +24,13 @@ extras_require = {
 }
 
 setup(
-    name="disco-py",
+    name="orca.py",
     author="b1nzy",
-    url="https://github.com/b1naryth1ef/disco",
+    url="https://github.com/VincentRPS/orca.py",
     version=VERSION,
-    packages=find_packages(include=["disco*"]),
+    packages=find_packages(include=["orca*"]),
     license="MIT",
-    description="A Python library for Discord",
+    description="Pythonic Bot Framework for the orcard API",
     long_description=readme,
     long_description_content_type="text/markdown",
     include_package_data=True,
@@ -53,8 +53,9 @@ setup(
         "Intended Audience :: Developers",
         "Natural Language :: English",
         "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Topic :: Internet",
         "Topic :: Software Development :: Libraries",
         "Topic :: Software Development :: Libraries :: Python Modules",

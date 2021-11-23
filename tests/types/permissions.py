@@ -1,4 +1,4 @@
-from disco.types.permissions import Permissions, PermissionValue
+from orca.types.permissions import Permissions, PermissionValue
 
 
 def test_permission_value_can():

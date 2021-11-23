@@ -1,5 +1,5 @@
 import pytest
-from disco.bot.plugin import Plugin, register_plugin_base_class, find_loadable_plugins
+from orca.bot.plugin import Plugin, register_plugin_base_class, find_loadable_plugins
 
 
 def _test_module(**kwargs):

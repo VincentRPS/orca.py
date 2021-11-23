@@ -1,5 +1,5 @@
 {
-  "title": "Disco",
+  "title": "orca",
   "plugins": ["prism", "-highlight", "hints", "anchorjs"],
 	"pluginsConfig": {
 			"anchorjs": {

@@ -1,4 +1,4 @@
-from disco.util.functional import simple_cached_property
+from orca.util.functional import simple_cached_property
 
 
 def test_simple_cached_property():

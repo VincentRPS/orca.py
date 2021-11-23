@@ -1,6 +1,6 @@
-from disco.state import State, StateConfig
-from disco.gateway.events import VoiceStateUpdate
-from disco.util.emitter import Emitter
+from orca.state import State, StateConfig
+from orca.gateway.events import VoiceStateUpdate
+from orca.util.emitter import Emitter
 
 
 class MockClient(object):

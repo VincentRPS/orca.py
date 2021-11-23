@@ -4,18 +4,18 @@
 If you are a new Python developer, or are unsure what pip even is, try starting [here](https://packaging.python.org/installing/).
 {% endhint %}
 
-The easiest way to install the base version of Disco is through Python's [pip](https://pip.pypa.io/en/stable/) utility. To simply install the most minimal version of Disco, simply run:
+The easiest way to install the base version of orca is through Python's [pip](https://pip.pypa.io/en/stable/) utility. To simply install the most minimal version of orca, simply run:
 
 ```sh
-pip install disco-py
+pip install orca-py
 ```
 
 ## Optional Dependencies
 
-Disco provides a set of optional dependencies which add various bits of functionality or performance changes when installed. These can all be installed in a similar fashion to Disco;
+orca provides a set of optional dependencies which add various bits of functionality or performance changes when installed. These can all be installed in a similar fashion to orca;
 
 ```sh
-pip install disco-py[performance]
+pip install orca-py[performance]
 ```
 
 | Name | Explanation | Versions |

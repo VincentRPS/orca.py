@@ -1,6 +1,6 @@
 build/
 dist/
-disco*.egg-info/
+orca*.egg-info/
 storage.db
 storage.json
 *.dca
@@ -21,7 +21,8 @@ node_modules/
 .idea/
 
 # Visual Studio IDE
-/.vs
+.vs/*
+.vscode/*
 
 # macOS
 .DS_Store

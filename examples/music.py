@@ -1,5 +1,5 @@
-from disco.bot import Plugin
-from disco.voice import VoiceConnection, YoutubeDLPlayable
+from orca.bot import Plugin
+from orca.voice import VoiceConnection, YoutubeDLPlayable
 
 
 class MusicPlugin(Plugin):

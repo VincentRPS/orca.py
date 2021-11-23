@@ -1,20 +1,24 @@
-# disco
+# Orca
 
-[![PyPI](https://img.shields.io/pypi/l/disco-py.svg)](https://pypi.python.org/pypi/disco-py/)
-[![PyPI](https://img.shields.io/pypi/v/disco-py.svg)](https://pypi.python.org/pypi/disco-py/)
-[![TravisCI](https://img.shields.io/travis/b1naryth1ef/disco.svg)](https://travis-ci.org/b1naryth1ef/disco/)
+[![PyPI](https://img.shields.io/pypi/l/orca-py.svg)](https://pypi.python.org/pypi/orca.py/)
+[![PyPI](https://img.shields.io/pypi/v/orca-py.svg)](https://pypi.python.org/pypi/orca.py/)
+<!--[![TravisCI](https://img.shields.io/travis/b1naryth1ef/orca.svg)](https://travis-ci.org/VincentRPS/orca.py/) -->
 
-Disco is an extensive and extendable Python 2.x/3.x library for the [Discord API](https://discordapp.com/developers/docs/intro). Disco boasts the following major features:
+Orca is an extensive and extendable Python 3.x library for the [orcard API](https://discord.com/developers/docs/intro). orca boasts the following major features:
 
 - Expressive, functional interface that gets out of the way
 - Built for high-performance and efficiency
 - Configurable and modular, take the bits you need
-- Full support for Python 2.x/3.x
+- Full support for Python 3.x
 - Evented networking and IO using Gevent
+
+## Fork
+
+Orca is a maintained fork of [orca](https://github.com/b1naryth1ef/orca)
 
 ## Installation
 
-Disco was built to run both as a generic-use library, and a standalone bot toolkit. Installing disco is as easy as running `pip install disco-py`, however some extra packages are recommended for power-users, namely:
+Orca was built to run both as a generic-use library, and a standalone bot toolkit. Installing orca is as easy as running `pip install orca.py`, however some extra packages are recommended for power-users, namely:
 
 |Name|Reason|
 |----|------|
@@ -28,11 +32,11 @@ Disco was built to run both as a generic-use library, and a standalone bot toolk
 Simple bot using the builtin bot authoring tools:
 
 ```python
-from disco.bot import Bot, Plugin
+from orca.bot import Bot, Plugin
 
 
 class SimplePlugin(Plugin):
-    # Plugins provide an easy interface for listening to Discord events
+    # Plugins provide an easy interface for listening to orcard events
     @Plugin.listen('ChannelCreate')
     def on_channel_create(self, event):
         event.channel.send_message('Woah, a new channel huh!')
@@ -50,7 +54,7 @@ class SimplePlugin(Plugin):
 
 Using the default bot configuration, we can now run this script like so:
 
-`python -m disco.cli --token="MY_DISCORD_TOKEN" --run-bot --plugin simpleplugin`
+`python -m orca.cli --token="MY_orcaRD_TOKEN" --run-bot --plugin simpleplugin`
 
 And commands can be triggered by mentioning the bot (configured by the BotConfig.command\_require\_mention flag):
 

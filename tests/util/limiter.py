@@ -2,7 +2,7 @@ import time
 import gevent
 from unittest import TestCase
 
-from disco.util.limiter import SimpleLimiter
+from orca.util.limiter import SimpleLimiter
 
 
 class TestSimpleLimiter(TestCase):

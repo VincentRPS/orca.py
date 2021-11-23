@@ -1,8 +1,8 @@
 from unittest import TestCase
 
-from disco.client import ClientConfig, Client
-from disco.bot.bot import Bot
-from disco.bot.command import Command
+from orca.client import ClientConfig, Client
+from orca.bot.bot import Bot
+from orca.bot.command import Command
 
 
 class Object(object):

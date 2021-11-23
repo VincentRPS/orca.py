@@ -1,8 +1,8 @@
-name: Disco
+name: Orca
 
 rules:
-  disco/*.py:
+  orca/*.py:
     parser: numpy
 
 outputs:
-  - {type: markdown, path: docs/api/, title: 'Disco Documentation'}
+  - {type: markdown, path: docs/api/, title: 'orca Documentation'}

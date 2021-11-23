@@ -1,10 +1,10 @@
-# Disco
+# orca
 
-Disco is a simple, clean and extendable library for the [Discord API](https://dis.gd/docs). Disco is built and aimed at developers looking to quickly start building bots that can be grown and extended to live on thousands of servers, and have immense functionality. To facilitate this, Disco provides a clean and simple interface which gets out of the way, but never sacrifices functionality. Disco is actively used by the staff at Discord to help us build and test Discord.
+orca is a simple, clean and extendable library for the [orcard API](https://dis.gd/docs). orca is built and aimed at developers looking to quickly start building bots that can be grown and extended to live on thousands of servers, and have immense functionality. To facilitate this, orca provides a clean and simple interface which gets out of the way, but never sacrifices functionality. orca is actively used by the staff at orcard to help us build and test orcard.
 
 ## Stability
 
-Disco is still a relatively young library, and as such it bears the "alpha" tag. For the most part, this means that while the general API and functionality may change or vary from version to version, the core concepts and features shouldn't diverge much. A benefit of this comes in the form of bleeding edge features and support for the latest Discord version.
+orca is still a relatively young library, and as such it bears the "alpha" tag. For the most part, this means that while the general API and functionality may change or vary from version to version, the core concepts and features shouldn't diverge much. A benefit of this comes in the form of bleeding edge features and support for the latest orcard version.
 
 ## Highlights
 

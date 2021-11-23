@@ -1,12 +1,12 @@
 # Commands
 
-Commands are a big part of the Discord bot usage. A command can be defined as an order you give to a bot. Basic examples of commands are:
+Commands are a big part of the orcard bot usage. A command can be defined as an order you give to a bot. Basic examples of commands are:
 `!help` or `!info`, most bots have either of the two.
 In the case of these examples, when you send `!help` or `!info` the bot will reply with a help or info message.
 
 ## Basic commands
 
-Creating commands in Disco is really easy because of the [Plugins](https://b1naryth1ef.github.io/disco/bot_tutorial/building_block_plugins.html) that are a core fundamental of Disco. For more info on them, read back in the [Plugins](https://b1naryth1ef.github.io/disco/bot_tutorial/building_block_plugins.html) section of this tutorial. Creating a basic command is done as follows:
+Creating commands in orca is really easy because of the [Plugins](https://b1naryth1ef.github.io/orca/bot_tutorial/building_block_plugins.html) that are a core fundamental of orca. For more info on them, read back in the [Plugins](https://b1naryth1ef.github.io/orca/bot_tutorial/building_block_plugins.html) section of this tutorial. Creating a basic command is done as follows:
 First, create a Plugin class:
 ```py
 class myPlugin(Plugin):
@@ -41,7 +41,7 @@ Using command groups you can easily group commands together and create sub comma
 def on_add_command(self, event, a, b):
   event.msg.reply('{}'.format(a+b))
 ```
-Here, we added multiple arguments to our command. Namely, number a and number b, that we add together and return back. Of course, you can do loads more fun things with the Disco command handler.
+Here, we added multiple arguments to our command. Namely, number a and number b, that we add together and return back. Of course, you can do loads more fun things with the orca command handler.
 
 ## Optional arguments
 

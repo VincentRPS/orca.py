@@ -3,12 +3,13 @@ language: python
 cache: pip
 
 python:
-  - '2.7'
-  - '3.6'
+  - '3.8'
+  - '3.9'
+  - '3.10'
 
 matrix:
   include:
-  - python: 3.7
+  - python: 3.8
     dist: xenial
     sudo: true
 
@@ -17,4 +18,4 @@ install:
 
 script:
   - python setup.py test
-  - flake8 disco/
+  - flake8 orca/

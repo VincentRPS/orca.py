@@ -1,8 +1,8 @@
 import time
 import random
 
-from disco.api.client import APIClient as _APIClient
-from disco.util.snowflake import from_timestamp_ms
+from orca.api.client import APIClient as _APIClient
+from orca.util.snowflake import from_timestamp_ms
 
 
 class CallContainer(object):

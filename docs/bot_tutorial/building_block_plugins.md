@@ -1,6 +1,6 @@
 # Plugins
 
-Plugins are Disco are a core abstraction which attempt to encapsulate the functionality of your bot into contained modules. To boil it down, commands related to one another, or listeners that control the same functionality should be within the same Plugin. Although it's possible to call and pass data between Plugins, you should generally attempt to avoid it.
+Plugins are orca are a core abstraction which attempt to encapsulate the functionality of your bot into contained modules. To boil it down, commands related to one another, or listeners that control the same functionality should be within the same Plugin. Although it's possible to call and pass data between Plugins, you should generally attempt to avoid it.
 
 ## Plugin Lifecycle
 
@@ -33,10 +33,10 @@ During the unload sequence all greenlets which the plugin owns (e.g. greenlets f
 
 ## Configuration
 
-Disco supports a framework for dynamically passing configuration to plugins. By default, configuration files live within the `config/` directory, and are named after the plugin, e.g. `ExamplePlugin` would be configured via `config/example.json`. Adding support for configuration within your plugin can be done via a decorator:
+orca supports a framework for dynamically passing configuration to plugins. By default, configuration files live within the `config/` directory, and are named after the plugin, e.g. `ExamplePlugin` would be configured via `config/example.json`. Adding support for configuration within your plugin can be done via a decorator:
 
 ```python
-from disco.bot import Plugin, Config
+from orca.bot import Plugin, Config
 
 class ExamplePluginConfig(Config):
     var1 = "test"

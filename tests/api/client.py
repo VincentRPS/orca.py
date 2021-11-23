@@ -1,5 +1,5 @@
-from disco.api.client import Responses
-from disco.api.http import APIResponse
+from orca.api.client import Responses
+from orca.api.http import APIResponse
 
 
 def test_responses_list():

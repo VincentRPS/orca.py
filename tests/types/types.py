@@ -3,7 +3,7 @@ from __future__ import print_function
 import six
 
 from unittest import TestCase
-from disco.types.base import Model, Field, enum, snowflake, ConversionError
+from orca.types.base import Model, Field, enum, snowflake, ConversionError
 
 
 class _A(Model):

@@ -1,7 +1,7 @@
 import pytest
 import random
 
-from disco.util.hashmap import HashMap
+from orca.util.hashmap import HashMap
 
 
 @pytest.fixture

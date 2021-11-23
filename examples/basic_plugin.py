@@ -1,7 +1,7 @@
 from __future__ import print_function
 
-from disco.bot import Plugin
-from disco.util.sanitize import S
+from orca.bot import Plugin
+from orca.util.sanitize import S
 
 
 class BasicPlugin(Plugin):
@@ -48,13 +48,13 @@ class BasicPlugin(Plugin):
 
     @Plugin.listen("MessageCreate")
     def on_message_create(self, event):
-        # All of Discord's events can be listened too and handled easily
+        # All of orcard's events can be listened too and handled easily
         self.log.info(u"{}: {}".format(event.author, event.content))
 
     @Plugin.command("test")
     @Plugin.command("echo", "<content:str...>")
     def on_echo_command(self, event, content):
-        # Commands can take a set of arguments that are validated by Disco itself
+        # Commands can take a set of arguments that are validated by orca itself
         #  and content sent via messages can be automatically sanitized to avoid
         #  mentions/etc.
         event.msg.reply(content, santize=True)
@@ -72,7 +72,7 @@ class BasicPlugin(Plugin):
     @Plugin.parser.add_argument("-a", "--asdf", help="wow")
     @Plugin.parser.add_argument("--help", action="store_true")
     def on_test(self, event, args):
-        # Disco supports using an argparse.ArgumentParser for parsing commands as
+        # orca supports using an argparse.ArgumentParser for parsing commands as
         #  well, which helps for large complex commands with many options or flags.
         if args.help:
             return event.msg.reply(event.parser.format_help())
