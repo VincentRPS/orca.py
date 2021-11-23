@@ -22,10 +22,14 @@ def test_shallow_attribute_deprecated():
         pass
 
     with pytest.warns(DeprecationWarning):
-        plugins = list(find_loadable_plugins(_test_module(
-            MyPluginBaseClass=MyPluginBaseClass,
-            RegularPlugin=RegularPlugin,
-        )))
+        plugins = list(
+            find_loadable_plugins(
+                _test_module(
+                    MyPluginBaseClass=MyPluginBaseClass,
+                    RegularPlugin=RegularPlugin,
+                )
+            )
+        )
 
     assert plugins == [RegularPlugin]
 
@@ -39,9 +43,13 @@ def test_register_plugin_base_class():
 
     register_plugin_base_class(MyPluginBaseClass)
 
-    plugins = list(find_loadable_plugins(_test_module(
-        MyPluginBaseClass=MyPluginBaseClass,
-        RegularPlugin=RegularPlugin,
-    )))
+    plugins = list(
+        find_loadable_plugins(
+            _test_module(
+                MyPluginBaseClass=MyPluginBaseClass,
+                RegularPlugin=RegularPlugin,
+            )
+        )
+    )
 
     assert plugins == [RegularPlugin]

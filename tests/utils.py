@@ -20,6 +20,4 @@ class APIClient(_APIClient):
 
 
 def random_snowflake():
-    return from_timestamp_ms(
-        (time.time() * 1000.0) + random.randint(1, 9999)
-    )
+    return from_timestamp_ms((time.time() * 1000.0) + random.randint(1, 9999))

@@ -47,7 +47,7 @@ class Storage(object):
         self._data = {}
 
         if os.path.exists(self._path):
-            with open(self._path, 'r') as f:
+            with open(self._path, "r") as f:
                 self._data = Serializer.loads(self._serializer, f.read())
                 if not self._data:
                     self._data = {}
@@ -65,25 +65,25 @@ class Storage(object):
         if not self._path:
             return
 
-        with open(self._path, 'w') as f:
+        with open(self._path, "w") as f:
             f.write(Serializer.dumps(self._serializer, self._data))
 
     def guild(self, key):
         return ContextAwareProxy(
-            lambda: self['_g{}:{}'.format(self._ctx['guild'].id, key)],
+            lambda: self["_g{}:{}".format(self._ctx["guild"].id, key)],
         )
 
     def channel(self, key):
         return ContextAwareProxy(
-            lambda: self['_c{}:{}'.format(self._ctx['channel'].id, key)],
+            lambda: self["_c{}:{}".format(self._ctx["channel"].id, key)],
         )
 
     def plugin(self, key):
         return ContextAwareProxy(
-            lambda: self['_p{}:{}'.format(self._ctx['plugin'].name, key)],
+            lambda: self["_p{}:{}".format(self._ctx["plugin"].name, key)],
         )
 
     def user(self, key):
         return ContextAwareProxy(
-            lambda: self['_u{}:{}'.format(self._ctx['user'].id, key)],
+            lambda: self["_u{}:{}".format(self._ctx["user"].id, key)],
         )

@@ -6,11 +6,19 @@ from six.moves import map
 from disco.util.snowflake import to_snowflake
 from disco.util.functional import one_or_many, chunks
 from disco.types.user import User
-from disco.types.base import SlottedModel, Field, AutoDictField, snowflake, enum, text, cached_property
+from disco.types.base import (
+    SlottedModel,
+    Field,
+    AutoDictField,
+    snowflake,
+    enum,
+    text,
+    cached_property,
+)
 from disco.types.permissions import Permissions, Permissible, PermissionValue
 
 
-NSFW_RE = re.compile('^nsfw(-|$)')
+NSFW_RE = re.compile("^nsfw(-|$)")
 
 
 class ChannelType(object):
@@ -24,8 +32,8 @@ class ChannelType(object):
 
 
 class PermissionOverwriteType(object):
-    ROLE = 'role'
-    MEMBER = 'member'
+    ROLE = "role"
+    MEMBER = "member"
 
 
 class ChannelSubType(SlottedModel):
@@ -51,6 +59,7 @@ class PermissionOverwrite(ChannelSubType):
     deny : :class:`disco.types.permissions.PermissionValue`
         All denied permissions.
     """
+
     id = Field(snowflake)
     type = Field(enum(PermissionOverwriteType))
     allow = Field(PermissionValue, cast=int)
@@ -62,7 +71,11 @@ class PermissionOverwrite(ChannelSubType):
     def create_for_channel(cls, channel, entity, allow=0, deny=0):
         from disco.types.guild import Role
 
-        ptype = PermissionOverwriteType.ROLE if isinstance(entity, Role) else PermissionOverwriteType.MEMBER
+        ptype = (
+            PermissionOverwriteType.ROLE
+            if isinstance(entity, Role)
+            else PermissionOverwriteType.MEMBER
+        )
         return cls(
             client=channel.client,
             id=entity.id,
@@ -80,12 +93,14 @@ class PermissionOverwrite(ChannelSubType):
         return value
 
     def save(self, **kwargs):
-        self.client.api.channels_permissions_modify(self.channel_id,
-                                                    self.id,
-                                                    self.allow.value or 0,
-                                                    self.deny.value or 0,
-                                                    self.type,
-                                                    **kwargs)
+        self.client.api.channels_permissions_modify(
+            self.channel_id,
+            self.id,
+            self.allow.value or 0,
+            self.deny.value or 0,
+            self.type,
+            **kwargs
+        )
         return self
 
     def delete(self, **kwargs):
@@ -119,6 +134,7 @@ class Channel(SlottedModel, Permissible):
     overwrites : dict(snowflake, :class:`disco.types.channel.PermissionOverwrite`)
         Channel permissions overwrites.
     """
+
     id = Field(snowflake)
     guild_id = Field(snowflake)
     name = Field(text)
@@ -127,10 +143,10 @@ class Channel(SlottedModel, Permissible):
     position = Field(int)
     bitrate = Field(int)
     user_limit = Field(int)
-    recipients = AutoDictField(User, 'id')
+    recipients = AutoDictField(User, "id")
     nsfw = Field(bool)
     type = Field(enum(ChannelType))
-    overwrites = AutoDictField(PermissionOverwrite, 'id', alias='permission_overwrites')
+    overwrites = AutoDictField(PermissionOverwrite, "id", alias="permission_overwrites")
     parent_id = Field(snowflake)
     rate_limit_per_user = Field(int)
 
@@ -140,13 +156,15 @@ class Channel(SlottedModel, Permissible):
 
     def after_load(self):
         # TODO: hackfix
-        self.attach(six.itervalues(self.overwrites), {'channel_id': self.id, 'channel': self})
+        self.attach(
+            six.itervalues(self.overwrites), {"channel_id": self.id, "channel": self}
+        )
 
     def __str__(self):
-        return u'#{}'.format(self.name) if self.name else six.text_type(self.id)
+        return u"#{}".format(self.name) if self.name else six.text_type(self.id)
 
     def __repr__(self):
-        return u'<Channel {} ({})>'.format(self.id, self)
+        return u"<Channel {} ({})>".format(self.id, self)
 
     def get_permissions(self, user):
         """
@@ -184,7 +202,7 @@ class Channel(SlottedModel, Permissible):
 
     @property
     def mention(self):
-        return '<#{}>'.format(self.id)
+        return "<#{}>".format(self.id)
 
     @property
     def is_guild(self):
@@ -218,7 +236,10 @@ class Channel(SlottedModel, Permissible):
         """
         Whether this channel is an NSFW channel.
         """
-        return bool(self.type == ChannelType.GUILD_TEXT and (self.nsfw or NSFW_RE.match(self.name)))
+        return bool(
+            self.type == ChannelType.GUILD_TEXT
+            and (self.nsfw or NSFW_RE.match(self.name))
+        )
 
     @property
     def is_voice(self):
@@ -289,6 +310,7 @@ class Channel(SlottedModel, Permissible):
         """
 
         from disco.types.invite import Invite
+
         return Invite.create_for_channel(self, *args, **kwargs)
 
     def get_pins(self):
@@ -397,7 +419,10 @@ class Channel(SlottedModel, Permissible):
         if not message_ids:
             return
 
-        if self.can(self.client.state.me, Permissions.MANAGE_MESSAGES) and len(messages) > 2:
+        if (
+            self.can(self.client.state.me, Permissions.MANAGE_MESSAGES)
+            and len(messages) > 2
+        ):
             for chunk in chunks(message_ids, 100):
                 self.client.api.channels_messages_delete_bulk(self.id, chunk)
         else:
@@ -405,7 +430,9 @@ class Channel(SlottedModel, Permissible):
                 self.delete_message(msg)
 
     def delete(self, **kwargs):
-        assert (self.is_dm or self.guild.can(self.client.state.me, Permissions.MANAGE_CHANNELS)), 'Invalid Permissions'
+        assert self.is_dm or self.guild.can(
+            self.client.state.me, Permissions.MANAGE_CHANNELS
+        ), "Invalid Permissions"
         self.client.api.channels_delete(self.id, **kwargs)
 
     def close(self):
@@ -413,7 +440,7 @@ class Channel(SlottedModel, Permissible):
         Closes a DM channel. This is intended as a safer version of `delete`,
         enforcing that the channel is actually a DM.
         """
-        assert self.is_dm, 'Cannot close non-DM channel'
+        assert self.is_dm, "Cannot close non-DM channel"
         self.delete()
 
     def set_topic(self, topic, reason=None):
@@ -432,48 +459,50 @@ class Channel(SlottedModel, Permissible):
         """
         Sets the channels position.
         """
-        return self.client.api.channels_modify(self.id, position=position, reason=reason)
+        return self.client.api.channels_modify(
+            self.id, position=position, reason=reason
+        )
 
     def set_nsfw(self, value, reason=None):
         """
         Sets whether the channel is NSFW.
         """
-        assert (self.type == ChannelType.GUILD_TEXT)
+        assert self.type == ChannelType.GUILD_TEXT
         return self.client.api.channels_modify(self.id, nsfw=value, reason=reason)
 
     def set_bitrate(self, bitrate, reason=None):
         """
         Sets the channels bitrate.
         """
-        assert (self.is_voice)
+        assert self.is_voice
         return self.client.api.channels_modify(self.id, bitrate=bitrate, reason=reason)
 
     def set_user_limit(self, user_limit, reason=None):
         """
         Sets the channels user limit.
         """
-        assert (self.is_voice)
-        return self.client.api.channels_modify(self.id, user_limit=user_limit, reason=reason)
+        assert self.is_voice
+        return self.client.api.channels_modify(
+            self.id, user_limit=user_limit, reason=reason
+        )
 
     def set_parent(self, parent, reason=None):
         """
         Sets the channels parent.
         """
-        assert (self.is_guild)
+        assert self.is_guild
         return self.client.api.channels_modify(
-            self.id,
-            parent_id=to_snowflake(parent) if parent else parent,
-            reason=reason)
+            self.id, parent_id=to_snowflake(parent) if parent else parent, reason=reason
+        )
 
     def set_slowmode(self, interval, reason=None):
         """
         Sets the channels slowmode (rate_limit_per_user).
         """
-        assert (self.type == ChannelType.GUILD_TEXT)
+        assert self.type == ChannelType.GUILD_TEXT
         return self.client.api.channels_modify(
-            self.id,
-            rate_limit_per_user=interval,
-            reason=reason)
+            self.id, rate_limit_per_user=interval, reason=reason
+        )
 
     def create_text_channel(self, *args, **kwargs):
         """
@@ -481,13 +510,10 @@ class Channel(SlottedModel, Permissible):
         for arguments and more information.
         """
         if self.type != ChannelType.GUILD_CATEGORY:
-            raise ValueError('Cannot create a sub-channel on a non-category channel')
+            raise ValueError("Cannot create a sub-channel on a non-category channel")
 
-        kwargs['parent_id'] = self.id
-        return self.guild.create_text_channel(
-            *args,
-            **kwargs
-        )
+        kwargs["parent_id"] = self.id
+        return self.guild.create_text_channel(*args, **kwargs)
 
     def create_voice_channel(self, *args, **kwargs):
         """
@@ -495,13 +521,10 @@ class Channel(SlottedModel, Permissible):
         for arguments and more information.
         """
         if self.type != ChannelType.GUILD_CATEGORY:
-            raise ValueError('Cannot create a sub-channel on a non-category channel')
+            raise ValueError("Cannot create a sub-channel on a non-category channel")
 
-        kwargs['parent_id'] = self.id
-        return self.guild.create_voice_channel(
-            *args,
-            **kwargs
-        )
+        kwargs["parent_id"] = self.id
+        return self.guild.create_voice_channel(*args, **kwargs)
 
 
 class MessageIterator(object):
@@ -526,11 +549,21 @@ class MessageIterator(object):
     chunk_size : int
         The number of messages to request per API call.
     """
+
     class Direction(object):
         UP = 1
         DOWN = 2
 
-    def __init__(self, client, channel, direction=Direction.UP, bulk=False, before=None, after=None, chunk_size=100):
+    def __init__(
+        self,
+        client,
+        channel,
+        direction=Direction.UP,
+        bulk=False,
+        before=None,
+        after=None,
+        chunk_size=100,
+    ):
         self.client = client
         self.channel = channel
         self.direction = direction
@@ -543,7 +576,7 @@ class MessageIterator(object):
         self._buffer = []
 
         if before is None and after is None and self.direction == self.Direction.DOWN:
-            raise Exception('Must specify either before or after for downward seeking')
+            raise Exception("Must specify either before or after for downward seeking")
 
     def fill(self):
         """
@@ -552,10 +585,8 @@ class MessageIterator(object):
         Returns a boolean indicating whether items were added to the buffer.
         """
         self._buffer = self.client.api.channels_messages_list(
-            self.channel.id,
-            before=self.before,
-            after=self.after,
-            limit=self.chunk_size)
+            self.channel.id, before=self.before, after=self.after, limit=self.chunk_size
+        )
 
         if not len(self._buffer):
             return False

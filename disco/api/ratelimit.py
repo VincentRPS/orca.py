@@ -31,6 +31,7 @@ class RouteState(LoggingClass):
         An event that is used to block all requests while a route is in the
         cooldown stage.
     """
+
     def __init__(self, route, response):
         self.route = route
         self.remaining = 0
@@ -40,7 +41,7 @@ class RouteState(LoggingClass):
         self.update(response)
 
     def __repr__(self):
-        return '<RouteState {}>'.format(' '.join(self.route))
+        return "<RouteState {}>".format(" ".join(self.route))
 
     @property
     def chilled(self):
@@ -67,11 +68,11 @@ class RouteState(LoggingClass):
         the response has the required headers, however in the case that it doesn't
         this function has no effect.
         """
-        if 'X-RateLimit-Remaining' not in response.headers:
+        if "X-RateLimit-Remaining" not in response.headers:
             return
 
-        self.remaining = int(response.headers.get('X-RateLimit-Remaining'))
-        self.reset_time = int(response.headers.get('X-RateLimit-Reset'))
+        self.remaining = int(response.headers.get("X-RateLimit-Remaining"))
+        self.reset_time = int(response.headers.get("X-RateLimit-Reset"))
 
     def wait(self, timeout=None):
         """
@@ -95,11 +96,13 @@ class RouteState(LoggingClass):
         Waits for the current route to be cooled-down (aka waiting until reset time).
         """
         if self.reset_time - time.time() < 0:
-            raise Exception('Cannot cooldown for negative time period; check clock sync')
+            raise Exception(
+                "Cannot cooldown for negative time period; check clock sync"
+            )
 
         self.event = gevent.event.Event()
-        delay = (self.reset_time - time.time()) + .5
-        self.log.debug('Cooling down bucket %s for %s seconds', self, delay)
+        delay = (self.reset_time - time.time()) + 0.5
+        self.log.debug("Cooling down bucket %s for %s seconds", self, delay)
         gevent.sleep(delay)
         self.event.set()
         self.event = None
@@ -116,6 +119,7 @@ class RateLimiter(LoggingClass):
         Contains a :class:`RouteState` for each route the RateLimiter is currently
         tracking.
     """
+
     def __init__(self):
         self.states = {}
 
@@ -164,7 +168,7 @@ class RateLimiter(LoggingClass):
             The response object for the last request to the route, whose headers
             will be used to update the routes rate limit state.
         """
-        if 'X-RateLimit-Global' in response.headers:
+        if "X-RateLimit-Global" in response.headers:
             route = None
 
         if route in self.states:

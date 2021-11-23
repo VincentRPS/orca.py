@@ -7,4 +7,4 @@ Pythonic Bot Framework for the Discord API
 :license: MIT, See LICENSE for more info
 """
 
-VERSION = '0.1.0'
+VERSION = "0.1.0"

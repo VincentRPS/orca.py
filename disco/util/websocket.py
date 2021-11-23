@@ -15,6 +15,7 @@ class Websocket(LoggingClass, websocket.WebSocketApp):
     The major difference comes with the move from callback functions, to all
     events being piped into a single emitter.
     """
+
     def __init__(self, *args, **kwargs):
         LoggingClass.__init__(self)
         websocket.WebSocketApp.__init__(self, *args, **kwargs)
@@ -23,7 +24,7 @@ class Websocket(LoggingClass, websocket.WebSocketApp):
 
         # Hack to get events to emit
         for var in six.iterkeys(self.__dict__):
-            if not var.startswith('on_'):
+            if not var.startswith("on_"):
                 continue
 
             setattr(self, var, var)
@@ -31,7 +32,7 @@ class Websocket(LoggingClass, websocket.WebSocketApp):
     def _get_close_args(self, data):
         if data and len(data) >= 2:
             code = 256 * six.byte2int(data[0:1]) + six.byte2int(data[1:2])
-            reason = data[2:].decode('utf-8')
+            reason = data[2:].decode("utf-8")
             return [code, reason]
         return [None, None]
 

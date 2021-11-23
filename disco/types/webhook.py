@@ -4,7 +4,7 @@ from disco.types.base import SlottedModel, Field, snowflake, cached_property
 from disco.types.user import User
 
 
-WEBHOOK_URL_RE = re.compile(r'\/api\/webhooks\/(\d+)\/(.[^/]+)')
+WEBHOOK_URL_RE = re.compile(r"\/api\/webhooks\/(\d+)\/(.[^/]+)")
 
 
 class Webhook(SlottedModel):
@@ -22,11 +22,10 @@ class Webhook(SlottedModel):
 
         results = WEBHOOK_URL_RE.findall(url)
         if len(results) != 1:
-            return Exception('Invalid Webhook URL')
+            return Exception("Invalid Webhook URL")
 
         return cls(id=results[0][0], token=results[0][1]).execute(
-            client=APIClient(None),
-            **kwargs
+            client=APIClient(None), **kwargs
         )
 
     @cached_property
@@ -45,28 +44,36 @@ class Webhook(SlottedModel):
 
     def modify(self, name, avatar):
         if self.token:
-            return self.client.api.webhooks_token_modify(self.id, self.token, name, avatar)
+            return self.client.api.webhooks_token_modify(
+                self.id, self.token, name, avatar
+            )
         else:
             return self.client.api.webhooks_modify(self.id, name, avatar)
 
     def execute(
-            self,
-            content=None,
-            username=None,
-            avatar_url=None,
-            tts=False,
-            fobj=None,
-            embeds=[],
-            wait=False,
-            client=None):
+        self,
+        content=None,
+        username=None,
+        avatar_url=None,
+        tts=False,
+        fobj=None,
+        embeds=[],
+        wait=False,
+        client=None,
+    ):
         # TODO: support file stuff properly
         client = client or self.client.api
 
-        return client.webhooks_token_execute(self.id, self.token, {
-            'content': content,
-            'username': username,
-            'avatar_url': avatar_url,
-            'tts': tts,
-            'file': fobj,
-            'embeds': [i.to_dict() for i in embeds],
-        }, wait)
+        return client.webhooks_token_execute(
+            self.id,
+            self.token,
+            {
+                "content": content,
+                "username": username,
+                "avatar_url": avatar_url,
+                "tts": tts,
+                "file": fobj,
+                "embeds": [i.to_dict() for i in embeds],
+            },
+            wait,
+        )

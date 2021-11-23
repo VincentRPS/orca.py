@@ -50,8 +50,9 @@ def test_hashmap_select_one():
     class Test(object):
         x = 1
         y = 2
-    hashmap = HashMap()
-    hashmap['x'] = Test()
 
-    assert hashmap.select_one(x=1) == hashmap['x']
+    hashmap = HashMap()
+    hashmap["x"] = Test()
+
+    assert hashmap.select_one(x=1) == hashmap["x"]
     assert hashmap.select_one(x=2) == None

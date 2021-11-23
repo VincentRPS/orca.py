@@ -10,13 +10,13 @@ from disco.util.hashmap import HashMap
 from disco.util.enum import get_enum_members
 
 DATETIME_FORMATS = [
-    '%Y-%m-%dT%H:%M:%S.%f',
-    '%Y-%m-%dT%H:%M:%S',
+    "%Y-%m-%dT%H:%M:%S.%f",
+    "%Y-%m-%dT%H:%M:%S",
 ]
 
 
 def get_item_by_path(obj, path):
-    for part in path.split('.'):
+    for part in path.split("."):
         obj = getattr(obj, part)
     return obj
 
@@ -41,21 +41,33 @@ def strict_cached_property(*args):
     def _cached_property(method):
         method._cached_property = set(args)
         return method
+
     return _cached_property
 
 
 class ConversionError(Exception):
     def __init__(self, field, raw, e):
         super(ConversionError, self).__init__(
-            'Failed to convert `{}` (`{}`) to {}: {}'.format(
-                str(raw)[:144], field.src_name, field.true_type, e))
+            "Failed to convert `{}` (`{}`) to {}: {}".format(
+                str(raw)[:144], field.src_name, field.true_type, e
+            )
+        )
 
         if six.PY3:
             self.__cause__ = e
 
 
 class Field(object):
-    def __init__(self, value_type, alias=None, default=UNSET, create=True, ignore_dump=None, cast=None, **kwargs):
+    def __init__(
+        self,
+        value_type,
+        alias=None,
+        default=UNSET,
+        create=True,
+        ignore_dump=None,
+        cast=None,
+        **kwargs
+    ):
         # TODO: fix default bullshit
         self.true_type = value_type
         self.src_name = alias
@@ -68,7 +80,7 @@ class Field(object):
         if default is not UNSET:
             self.default = default
         # Attempt to use the instances default type (e.g. from a subclass)
-        elif not hasattr(self, 'default'):
+        elif not hasattr(self, "default"):
             self.default = UNSET
 
         self.deserializer = None
@@ -78,10 +90,12 @@ class Field(object):
 
             if isinstance(self.deserializer, Field) and self.default is UNSET:
                 self.default = self.deserializer.default
-            elif (inspect.isclass(self.deserializer) and
-                    issubclass(self.deserializer, Model) and
-                    self.default is UNSET and
-                    create):
+            elif (
+                inspect.isclass(self.deserializer)
+                and issubclass(self.deserializer, Model)
+                and self.default is UNSET
+                and create
+            ):
                 self.default = self.deserializer
 
     @property
@@ -114,11 +128,15 @@ class Field(object):
         #        return typ.get(raw)
         #    return _f
         elif typ is None:
+
             def _f(*args, **kwargs):
                 return None
+
         else:
+
             def _f(raw, client, **kwargs):
                 return typ(raw)
+
             return _f
 
     @staticmethod
@@ -147,14 +165,18 @@ class DictField(Field):
     @staticmethod
     def serialize(value, inst=None):
         return {
-            Field.serialize(k): Field.serialize(v) for k, v in six.iteritems(value)
+            Field.serialize(k): Field.serialize(v)
+            for k, v in six.iteritems(value)
             if k not in (inst.ignore_dump if inst else [])
         }
 
     def try_convert(self, raw, client, **kwargs):
-        return HashMap({
-            self.key_de(k, client): self.value_de(v, client) for k, v in six.iteritems(raw)
-        })
+        return HashMap(
+            {
+                self.key_de(k, client): self.value_de(v, client)
+                for k, v in six.iteritems(raw)
+            }
+        )
 
 
 class ListField(Field):
@@ -177,9 +199,9 @@ class AutoDictField(Field):
         self.key = key
 
     def try_convert(self, raw, client, **kwargs):
-        return HashMap({
-            getattr(b, self.key): b for b in (self.value_de(a, client) for a in raw)
-        })
+        return HashMap(
+            {getattr(b, self.key): b for b in (self.value_de(a, client) for a in raw)}
+        )
 
 
 def _make(typ, data, client):
@@ -204,6 +226,7 @@ def enum(typ):
                 return v
 
         return None
+
     return _f
 
 
@@ -216,11 +239,11 @@ def datetime(data):
 
     for fmt in DATETIME_FORMATS:
         try:
-            return real_datetime.strptime(data.rsplit('+', 1)[0], fmt)
+            return real_datetime.strptime(data.rsplit("+", 1)[0], fmt)
         except (ValueError, TypeError):
             continue
 
-    raise ValueError('Failed to convert `{}` to datetime'.format(data))
+    raise ValueError("Failed to convert `{}` to datetime".format(data))
 
 
 def text(obj):
@@ -229,7 +252,7 @@ def text(obj):
 
     if six.PY2:
         if isinstance(obj, str):
-            return obj.decode('utf-8')
+            return obj.decode("utf-8")
     return six.text_type(obj)
 
 
@@ -240,6 +263,7 @@ def with_equality(field):
                 return getattr(self, field) == getattr(other, field)
             else:
                 return getattr(self, field) == other
+
     return T
 
 
@@ -247,6 +271,7 @@ def with_hash(field):
     class T(object):
         def __hash__(self):
             return hash(getattr(self, field))
+
     return T
 
 
@@ -258,17 +283,17 @@ SlottedModel = None
 def _get_cached_property(name, func):
     def _getattr(self):
         try:
-            return getattr(self, '_' + name)
+            return getattr(self, "_" + name)
         except AttributeError:
             value = func(self)
-            setattr(self, '_' + name, value)
+            setattr(self, "_" + name, value)
             return value
 
     def _setattr(self, value):
-        setattr(self, '_' + name)
+        setattr(self, "_" + name)
 
     def _delattr(self):
-        delattr(self, '_' + name)
+        delattr(self, "_" + name)
 
     prop = property(_getattr, _setattr, _delattr)
     return prop
@@ -284,9 +309,9 @@ class ModelMeta(type):
                 fields.update(parent._fields)
 
         for k, v in six.iteritems(dct):
-            if hasattr(v, '_cached_property'):
+            if hasattr(v, "_cached_property"):
                 dct[k] = _get_cached_property(k, v)
-                slots.add('_' + k)
+                slots.add("_" + k)
 
             if not isinstance(v, Field):
                 continue
@@ -297,22 +322,22 @@ class ModelMeta(type):
 
         if SlottedModel and any(map(lambda k: issubclass(k, SlottedModel), parents)):
             # Merge our set of field slots with any other slots from the mro
-            dct['__slots__'] = tuple(set(dct.get('__slots__', [])) | slots)
+            dct["__slots__"] = tuple(set(dct.get("__slots__", [])) | slots)
 
             # Remove all fields from the dict
-            dct = {k: v for k, v in six.iteritems(dct) if k not in dct['__slots__']}
+            dct = {k: v for k, v in six.iteritems(dct) if k not in dct["__slots__"]}
         else:
             dct = {k: v for k, v in six.iteritems(dct) if k not in fields}
 
-        dct['_fields'] = fields
+        dct["_fields"] = fields
         return super(ModelMeta, mcs).__new__(mcs, name, parents, dct)
 
 
 class Model(six.with_metaclass(ModelMeta, Chainable)):
-    __slots__ = ['client']
+    __slots__ = ["client"]
 
     def __init__(self, *args, **kwargs):
-        self.client = kwargs.pop('client', None)
+        self.client = kwargs.pop("client", None)
 
         if len(args) == 1:
             obj = args[0]
@@ -403,11 +428,12 @@ class Model(six.with_metaclass(ModelMeta, Chainable)):
 
     @classmethod
     def create_hash(cls, client, key, data, **kwargs):
-        return HashMap({
-            get_item_by_path(item, key): item
-            for item in [
-                cls.create(client, item, **kwargs) for item in data]
-        })
+        return HashMap(
+            {
+                get_item_by_path(item, key): item
+                for item in [cls.create(client, item, **kwargs) for item in data]
+            }
+        )
 
     @classmethod
     def attach(cls, it, data):
@@ -420,7 +446,7 @@ class Model(six.with_metaclass(ModelMeta, Chainable)):
 
 
 class SlottedModel(Model):
-    __slots__ = ['client']
+    __slots__ = ["client"]
 
 
 class BitsetMap(object):
@@ -432,7 +458,7 @@ class BitsetMap(object):
 
 
 class BitsetValue(object):
-    __slots__ = ['value', 'map']
+    __slots__ = ["value", "map"]
 
     def __init__(self, value=0):
         if isinstance(value, self.__class__):
@@ -452,7 +478,7 @@ class BitsetValue(object):
         elif isinstance(other, int):
             self.value |= other
         else:
-            raise TypeError('Cannot BitsetValue.add from type {}'.format(type(other)))
+            raise TypeError("Cannot BitsetValue.add from type {}".format(type(other)))
         return self
 
     def sub(self, other):
@@ -461,7 +487,7 @@ class BitsetValue(object):
         elif isinstance(other, int):
             self.value &= ~other
         else:
-            raise TypeError('Cannot BitsetValue.sub from type {}'.format(type(other)))
+            raise TypeError("Cannot BitsetValue.sub from type {}".format(type(other)))
         return self
 
     def __iadd__(self, other):
@@ -472,7 +498,9 @@ class BitsetValue(object):
 
     def __getattribute__(self, name):
         try:
-            perm_value = getattr(super(BitsetValue, self).__getattribute__('map'), name.upper())
+            perm_value = getattr(
+                super(BitsetValue, self).__getattribute__("map"), name.upper()
+            )
             return (self.value & perm_value) == perm_value
         except AttributeError:
             return super(BitsetValue, self).__getattribute__(name)
@@ -492,6 +520,4 @@ class BitsetValue(object):
         return self.value
 
     def to_dict(self):
-        return {
-            k: getattr(self, k) for k in list(self.map.keys())
-        }
+        return {k: getattr(self, k) for k in list(self.map.keys())}

@@ -41,6 +41,7 @@ class Invite(SlottedModel):
     created_at : datetime
         When this invite was created.
     """
+
     code = Field(str)
     guild = Field(Guild)
     channel = Field(Channel)
@@ -61,7 +62,7 @@ class Invite(SlottedModel):
 
     @property
     def link(self):
-        return 'https://discord.gg/{}'.format(self.code)
+        return "https://discord.gg/{}".format(self.code)
 
     def delete(self, *args, **kwargs):
         self.client.api.invites_delete(self.code, *args, **kwargs)

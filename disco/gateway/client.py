@@ -15,13 +15,20 @@ from disco.util.logging import LoggingClass
 from disco.util.limiter import SimpleLimiter
 
 TEN_MEGABYTES = 10490000
-ZLIB_SUFFIX = b'\x00\x00\xff\xff'
+ZLIB_SUFFIX = b"\x00\x00\xff\xff"
 
 
 class GatewayClient(LoggingClass):
     GATEWAY_VERSION = 6
 
-    def __init__(self, client, max_reconnects=5, encoder='json', zlib_stream_enabled=True, ipc=None):
+    def __init__(
+        self,
+        client,
+        max_reconnects=5,
+        encoder="json",
+        zlib_stream_enabled=True,
+        ipc=None,
+    ):
         super(GatewayClient, self).__init__()
         self.client = client
         self.max_reconnects = max_reconnects
@@ -48,8 +55,8 @@ class GatewayClient(LoggingClass):
         self.packets.on((RECV, OPCode.HELLO), self.handle_hello)
 
         # Bind to ready payload
-        self.events.on('Ready', self.on_ready)
-        self.events.on('Resumed', self.on_resumed)
+        self.events.on("Ready", self.on_ready)
+        self.events.on("Resumed", self.on_resumed)
 
         # Websocket connection
         self.ws = None
@@ -81,17 +88,24 @@ class GatewayClient(LoggingClass):
         return self._send(op, data)
 
     def _send(self, op, data):
-        self.log.debug('GatewayClient.send %s', op)
+        self.log.debug("GatewayClient.send %s", op)
         self.packets.emit((SEND, op), data)
-        self.ws.send(self.encoder.encode({
-            'op': op,
-            'd': data,
-        }), self.encoder.OPCODE)
+        self.ws.send(
+            self.encoder.encode(
+                {
+                    "op": op,
+                    "d": data,
+                }
+            ),
+            self.encoder.OPCODE,
+        )
 
     def heartbeat_task(self, interval):
         while True:
             if not self._heartbeat_acknowledged:
-                self.log.warning('Received HEARTBEAT without HEARTBEAT_ACK, forcing a fresh reconnect')
+                self.log.warning(
+                    "Received HEARTBEAT without HEARTBEAT_ACK, forcing a fresh reconnect"
+                )
                 self._heartbeat_acknowledged = True
                 self.ws.close(status=4000)
                 return
@@ -103,7 +117,7 @@ class GatewayClient(LoggingClass):
 
     def handle_dispatch(self, packet):
         obj = GatewayEvent.from_dispatch(self.client, packet)
-        self.log.debug('GatewayClient.handle_dispatch %s', obj.__class__.__name__)
+        self.log.debug("GatewayClient.handle_dispatch %s", obj.__class__.__name__)
         self.client.events.emit(obj.__class__.__name__, obj)
         if self.replaying:
             self.replayed_events += 1
@@ -112,54 +126,58 @@ class GatewayClient(LoggingClass):
         self._send(OPCode.HEARTBEAT, self.seq)
 
     def handle_heartbeat_acknowledge(self, _):
-        self.log.debug('Received HEARTBEAT_ACK')
+        self.log.debug("Received HEARTBEAT_ACK")
         self._heartbeat_acknowledged = True
         self.latency = int((time.time() - self._last_heartbeat) * 1000)
 
     def handle_reconnect(self, _):
-        self.log.warning('Received RECONNECT request, forcing a fresh reconnect')
+        self.log.warning("Received RECONNECT request, forcing a fresh reconnect")
         self.session_id = None
         self.ws.close()
 
     def handle_invalid_session(self, _):
-        self.log.warning('Received INVALID_SESSION, forcing a fresh reconnect')
+        self.log.warning("Received INVALID_SESSION, forcing a fresh reconnect")
         self.session_id = None
         self.ws.close()
 
     def handle_hello(self, packet):
-        self.log.info('Received HELLO, starting heartbeater...')
-        self._heartbeat_task = gevent.spawn(self.heartbeat_task, packet['d']['heartbeat_interval'])
+        self.log.info("Received HELLO, starting heartbeater...")
+        self._heartbeat_task = gevent.spawn(
+            self.heartbeat_task, packet["d"]["heartbeat_interval"]
+        )
 
     def on_ready(self, ready):
-        self.log.info('Received READY')
+        self.log.info("Received READY")
         self.session_id = ready.session_id
         self.reconnects = 0
 
     def on_resumed(self, _):
-        self.log.info('RESUME completed, replayed %s events', self.replayed_events)
+        self.log.info("RESUME completed, replayed %s events", self.replayed_events)
         self.reconnects = 0
         self.replaying = False
 
     def connect_and_run(self, gateway_url=None):
         if not gateway_url:
             if not self._cached_gateway_url:
-                self._cached_gateway_url = self.client.api.gateway_get()['url']
+                self._cached_gateway_url = self.client.api.gateway_get()["url"]
 
             gateway_url = self._cached_gateway_url
 
-        gateway_url += '?v={}&encoding={}'.format(self.GATEWAY_VERSION, self.encoder.TYPE)
+        gateway_url += "?v={}&encoding={}".format(
+            self.GATEWAY_VERSION, self.encoder.TYPE
+        )
 
         if self.zlib_stream_enabled:
-            gateway_url += '&compress=zlib-stream'
+            gateway_url += "&compress=zlib-stream"
 
-        self.log.info('Opening websocket connection to URL `%s`', gateway_url)
+        self.log.info("Opening websocket connection to URL `%s`", gateway_url)
         self.ws = Websocket(gateway_url)
-        self.ws.emitter.on('on_open', self.on_open)
-        self.ws.emitter.on('on_error', self.on_error)
-        self.ws.emitter.on('on_close', self.on_close)
-        self.ws.emitter.on('on_message', self.on_message)
+        self.ws.emitter.on("on_open", self.on_open)
+        self.ws.emitter.on("on_error", self.on_error)
+        self.ws.emitter.on("on_close", self.on_close)
+        self.ws.emitter.on("on_message", self.on_message)
 
-        self.ws.run_forever(sslopt={'cert_reqs': ssl.CERT_NONE})
+        self.ws.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE})
 
     def on_message(self, msg):
         if self.zlib_stream_enabled:
@@ -177,63 +195,73 @@ class GatewayClient(LoggingClass):
             msg = self._zlib.decompress(self._buffer if six.PY3 else str(self._buffer))
             # If this encoder is text based, we want to decode the data as utf8
             if self.encoder.OPCODE == ABNF.OPCODE_TEXT:
-                msg = msg.decode('utf-8')
+                msg = msg.decode("utf-8")
             self._buffer = None
         else:
             # Detect zlib and decompress
-            is_erlpack = ((six.PY2 and ord(msg[0]) == 131) or (six.PY3 and msg[0] == 131))
-            if msg[0] != '{' and not is_erlpack:
-                msg = zlib.decompress(msg, 15, TEN_MEGABYTES).decode('utf-8')
+            is_erlpack = (six.PY2 and ord(msg[0]) == 131) or (six.PY3 and msg[0] == 131)
+            if msg[0] != "{" and not is_erlpack:
+                msg = zlib.decompress(msg, 15, TEN_MEGABYTES).decode("utf-8")
 
         try:
             data = self.encoder.decode(msg)
         except Exception:
-            self.log.exception('Failed to parse gateway message: ')
+            self.log.exception("Failed to parse gateway message: ")
             return
 
         # Update sequence
-        if data['s'] and data['s'] > self.seq:
-            self.seq = data['s']
+        if data["s"] and data["s"] > self.seq:
+            self.seq = data["s"]
 
         # Emit packet
-        self.packets.emit((RECV, data['op']), data)
+        self.packets.emit((RECV, data["op"]), data)
 
     def on_error(self, error):
         if isinstance(error, KeyboardInterrupt):
             self.shutting_down = True
             self.ws_event.set()
-        raise Exception('WS received error: {}'.format(error))
+        raise Exception("WS received error: {}".format(error))
 
     def on_open(self):
         if self.zlib_stream_enabled:
             self._zlib = zlib.decompressobj()
 
         if self.seq and self.session_id:
-            self.log.info('WS Opened: attempting resume w/ SID: %s SEQ: %s', self.session_id, self.seq)
+            self.log.info(
+                "WS Opened: attempting resume w/ SID: %s SEQ: %s",
+                self.session_id,
+                self.seq,
+            )
             self.replaying = True
-            self.send(OPCode.RESUME, {
-                'token': self.client.config.token,
-                'session_id': self.session_id,
-                'seq': self.seq,
-            })
-        else:
-            self.log.info('WS Opened: sending identify payload')
-            self.send(OPCode.IDENTIFY, {
-                'token': self.client.config.token,
-                'compress': True,
-                'large_threshold': 250,
-                'guild_subscriptions': self.client.config.guild_subscriptions,
-                'shard': [
-                    int(self.client.config.shard_id),
-                    int(self.client.config.shard_count),
-                ],
-                'properties': {
-                    '$os': platform.system(),
-                    '$browser': 'disco',
-                    '$device': 'disco',
-                    '$referrer': '',
+            self.send(
+                OPCode.RESUME,
+                {
+                    "token": self.client.config.token,
+                    "session_id": self.session_id,
+                    "seq": self.seq,
                 },
-            })
+            )
+        else:
+            self.log.info("WS Opened: sending identify payload")
+            self.send(
+                OPCode.IDENTIFY,
+                {
+                    "token": self.client.config.token,
+                    "compress": True,
+                    "large_threshold": 250,
+                    "guild_subscriptions": self.client.config.guild_subscriptions,
+                    "shard": [
+                        int(self.client.config.shard_id),
+                        int(self.client.config.shard_count),
+                    ],
+                    "properties": {
+                        "$os": platform.system(),
+                        "$browser": "disco",
+                        "$device": "disco",
+                        "$referrer": "",
+                    },
+                },
+            )
 
     def on_close(self, code, reason):
         # Make sure we cleanup any old data
@@ -246,24 +274,32 @@ class GatewayClient(LoggingClass):
 
         # If we're quitting, just break out of here
         if self.shutting_down:
-            self.log.info('WS Closed: shutting down')
+            self.log.info("WS Closed: shutting down")
             return
 
         self.replaying = False
 
         # Track reconnect attempts
         self.reconnects += 1
-        self.log.info('WS Closed: [%s] %s (%s)', code, reason, self.reconnects)
+        self.log.info("WS Closed: [%s] %s (%s)", code, reason, self.reconnects)
 
         if self.max_reconnects and self.reconnects > self.max_reconnects:
-            raise Exception('Failed to reconnect after {} attempts, giving up'.format(self.max_reconnects))
+            raise Exception(
+                "Failed to reconnect after {} attempts, giving up".format(
+                    self.max_reconnects
+                )
+            )
 
         # Don't resume for these error codes
         if code and 4000 <= code <= 4010:
             self.session_id = None
 
         wait_time = self.reconnects * 5
-        self.log.info('Will attempt to %s after %s seconds', 'resume' if self.session_id else 'reconnect', wait_time)
+        self.log.info(
+            "Will attempt to %s after %s seconds",
+            "resume" if self.session_id else "reconnect",
+            wait_time,
+        )
         gevent.sleep(wait_time)
 
         # Reconnect
@@ -273,27 +309,37 @@ class GatewayClient(LoggingClass):
         gevent.spawn(self.connect_and_run)
         self.ws_event.wait()
 
-    def request_guild_members(self, guild_id_or_ids, query=None, limit=0, presences=False):
+    def request_guild_members(
+        self, guild_id_or_ids, query=None, limit=0, presences=False
+    ):
         """
         Request a batch of Guild members from Discord. Generally this function
         can be called when initially loading Guilds to fill the local member state.
         """
-        self.send(OPCode.REQUEST_GUILD_MEMBERS, {
-            # This is simply unfortunate naming on the part of Discord...
-            'guild_id': guild_id_or_ids,
-            'limit': limit,
-            'presences': presences,
-            'query': query or '',
-        })
+        self.send(
+            OPCode.REQUEST_GUILD_MEMBERS,
+            {
+                # This is simply unfortunate naming on the part of Discord...
+                "guild_id": guild_id_or_ids,
+                "limit": limit,
+                "presences": presences,
+                "query": query or "",
+            },
+        )
 
-    def request_guild_members_by_id(self, guild_id_or_ids, user_id_or_ids, limit=0, presences=False):
+    def request_guild_members_by_id(
+        self, guild_id_or_ids, user_id_or_ids, limit=0, presences=False
+    ):
         """
         Request a batch of Guild members from Discord by their snowflake(s).
         """
-        self.send(OPCode.REQUEST_GUILD_MEMBERS, {
-            'guild_id': guild_id_or_ids,
-            'limit': limit,
-            'presences': presences,
-            # This is simply even more unfortunate naming from Discord...
-            'user_ids': user_id_or_ids,
-        })
+        self.send(
+            OPCode.REQUEST_GUILD_MEMBERS,
+            {
+                "guild_id": guild_id_or_ids,
+                "limit": limit,
+                "presences": presences,
+                # This is simply even more unfortunate naming from Discord...
+                "user_ids": user_id_or_ids,
+            },
+        )

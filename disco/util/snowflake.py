@@ -38,10 +38,10 @@ def to_snowflake(i):
         return i
     elif isinstance(i, str):
         return int(i)
-    elif hasattr(i, 'id'):
+    elif hasattr(i, "id"):
         return i.id
 
-    raise Exception('{} ({}) is not convertible to a snowflake'.format(type(i), i))
+    raise Exception("{} ({}) is not convertible to a snowflake".format(type(i), i))
 
 
 def calculate_shard(shard_count, guild_id):

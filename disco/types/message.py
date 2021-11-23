@@ -5,8 +5,17 @@ import functools
 import unicodedata
 
 from disco.types.base import (
-    BitsetMap, BitsetValue, SlottedModel, Field, ListField, AutoDictField,
-    snowflake, text, datetime, enum, cached_property,
+    BitsetMap,
+    BitsetValue,
+    SlottedModel,
+    Field,
+    ListField,
+    AutoDictField,
+    snowflake,
+    text,
+    datetime,
+    enum,
+    cached_property,
 )
 from disco.util.paginator import Paginator
 from disco.util.snowflake import to_snowflake
@@ -50,6 +59,7 @@ class Emoji(SlottedModel):
     animated : bool
         Whether this emoji is animated.
     """
+
     id = Field(snowflake)
     name = Field(text)
     animated = Field(bool)
@@ -65,7 +75,7 @@ class Emoji(SlottedModel):
 
     def to_string(self):
         if self.id:
-            return '{}:{}'.format(self.name, self.id)
+            return "{}:{}".format(self.name, self.id)
         return self.name
 
 
@@ -73,6 +83,7 @@ class MessageReactionEmoji(Emoji):
     """
     Represents a emoji which was used as a reaction on a message.
     """
+
     pass
 
 
@@ -89,6 +100,7 @@ class MessageReaction(SlottedModel):
     me : bool
         Whether the current user reacted with this emoji.
     """
+
     emoji = Field(MessageReactionEmoji)
     count = Field(int)
     me = Field(bool)
@@ -111,6 +123,7 @@ class MessageApplication(SlottedModel):
     name : str
         The name of the application.
     """
+
     id = Field(snowflake)
     cover_image = Field(text)
     description = Field(text)
@@ -135,6 +148,7 @@ class MessageActivity(SlottedModel):
     party_id : str
         The party id from a Rich Presence event.
     """
+
     type = Field(enum(MessageActivityType))
     party_id = Field(text)
 
@@ -152,6 +166,7 @@ class MessageEmbedFooter(SlottedModel):
     proxy_icon_url : str
         A proxy URL for the footer icon, set by Discord.
     """
+
     text = Field(text)
     icon_url = Field(text)
     proxy_icon_url = Field(text)
@@ -172,6 +187,7 @@ class MessageEmbedImage(SlottedModel):
     height : int
         The height of the image, set by Discord.
     """
+
     url = Field(text)
     proxy_url = Field(text)
     width = Field(int)
@@ -193,6 +209,7 @@ class MessageEmbedThumbnail(SlottedModel):
     height : int
         The height of the thumbnail, set by Discord.
     """
+
     url = Field(text)
     proxy_url = Field(text)
     width = Field(int)
@@ -212,6 +229,7 @@ class MessageEmbedVideo(SlottedModel):
     height : int
         The height of the video, set by Discord.
     """
+
     url = Field(text)
     height = Field(int)
     width = Field(int)
@@ -232,6 +250,7 @@ class MessageEmbedAuthor(SlottedModel):
     proxy_icon_url : str
         A proxy URL for the authors icon, set by Discord.
     """
+
     name = Field(text)
     url = Field(text)
     icon_url = Field(text)
@@ -251,6 +270,7 @@ class MessageEmbedField(SlottedModel):
     inline : bool
         Whether the field renders inline or by itself.
     """
+
     name = Field(text)
     value = Field(text)
     inline = Field(bool)
@@ -287,8 +307,9 @@ class MessageEmbed(SlottedModel):
     fields : list[`MessageEmbedField]`
         The fields of the embed.
     """
+
     title = Field(text)
-    type = Field(str, default='rich')
+    type = Field(str, default="rich")
     description = Field(text)
     url = Field(text)
     timestamp = Field(datetime)
@@ -358,6 +379,7 @@ class MessageAttachment(SlottedModel):
     width : int
         Width of the attachment.
     """
+
     id = Field(str)
     filename = Field(text)
     url = Field(text)
@@ -435,6 +457,7 @@ class Message(SlottedModel):
     flags: `MessageFlagValue`
         The flags attached to a message.
     """
+
     id = Field(snowflake)
     channel_id = Field(snowflake)
     webhook_id = Field(snowflake)
@@ -447,11 +470,11 @@ class Message(SlottedModel):
     tts = Field(bool)
     mention_everyone = Field(bool)
     pinned = Field(bool)
-    mentions = AutoDictField(User, 'id')
+    mentions = AutoDictField(User, "id")
     mention_roles = ListField(snowflake)
     embeds = ListField(MessageEmbed)
     mention_channels = ListField(ChannelMention)
-    attachments = AutoDictField(MessageAttachment, 'id')
+    attachments = AutoDictField(MessageAttachment, "id")
     reactions = ListField(MessageReaction)
     activity = Field(MessageActivity)
     application = Field(MessageApplication)
@@ -459,7 +482,7 @@ class Message(SlottedModel):
     flags = Field(MessageFlagValue)
 
     def __str__(self):
-        return '<Message {} ({})>'.format(self.id, self.channel_id)
+        return "<Message {} ({})>".format(self.id, self.channel_id)
 
     @cached_property
     def guild(self):
@@ -528,7 +551,9 @@ class Message(SlottedModel):
         `Message`
             The edited message object.
         """
-        return self.client.api.channels_messages_modify(self.channel_id, self.id, *args, **kwargs)
+        return self.client.api.channels_messages_modify(
+            self.channel_id, self.id, *args, **kwargs
+        )
 
     def delete(self):
         """
@@ -573,17 +598,19 @@ class Message(SlottedModel):
 
         return Paginator(
             self.client.api.channels_messages_reactions_get,
-            'after',
+            "after",
             self.channel_id,
             self.id,
             emoji,
             *args,
-            **kwargs)
+            **kwargs
+        )
 
     def create_reaction(self, emoji):
         warnings.warn(
-            'Message.create_reaction will be deprecated soon, use Message.add_reaction',
-            DeprecationWarning)
+            "Message.create_reaction will be deprecated soon, use Message.add_reaction",
+            DeprecationWarning,
+        )
         return self.add_reaction(emoji)
 
     def add_reaction(self, emoji):
@@ -599,9 +626,8 @@ class Message(SlottedModel):
             emoji = emoji.to_string()
 
         self.client.api.channels_messages_reactions_create(
-            self.channel_id,
-            self.id,
-            emoji)
+            self.channel_id, self.id, emoji
+        )
 
     def delete_reaction(self, emoji, user=None):
         """
@@ -614,10 +640,8 @@ class Message(SlottedModel):
             user = to_snowflake(user)
 
         self.client.api.channels_messages_reactions_delete(
-            self.channel_id,
-            self.id,
-            emoji,
-            user)
+            self.channel_id, self.id, emoji, user
+        )
 
     def delete_all_reactions(self):
         """
@@ -647,10 +671,8 @@ class Message(SlottedModel):
             the message contents with all mentions removed.
         """
         return self.replace_mentions(
-            lambda u: '',
-            lambda r: '',
-            lambda c: '',
-            nonexistant=not valid_only)
+            lambda u: "", lambda r: "", lambda c: "", nonexistant=not valid_only
+        )
 
     @cached_property
     def with_proper_mentions(self):
@@ -660,18 +682,25 @@ class Message(SlottedModel):
         str
             The message with mentions replaced w/ their proper form.
         """
+
         def replace_user(u):
-            return u'@' + six.text_type(u)
+            return u"@" + six.text_type(u)
 
         def replace_role(r):
-            return u'@' + six.text_type(r)
+            return u"@" + six.text_type(r)
 
         def replace_channel(c):
             return six.text_type(c)
 
         return self.replace_mentions(replace_user, replace_role, replace_channel)
 
-    def replace_mentions(self, user_replace=None, role_replace=None, channel_replace=None, nonexistant=False):
+    def replace_mentions(
+        self,
+        user_replace=None,
+        role_replace=None,
+        channel_replace=None,
+        nonexistant=False,
+    ):
         """
         Replaces user and role mentions with the result of a given lambda/function.
 
@@ -689,6 +718,7 @@ class Message(SlottedModel):
         str
             The message contents with all valid mentions replaced.
         """
+
         def replace(getter, func, match):
             oid = int(match.group(2))
             obj = getter(oid)
@@ -702,21 +732,27 @@ class Message(SlottedModel):
 
         if user_replace:
             replace_user = functools.partial(replace, self.mentions.get, user_replace)
-            content = re.sub('(<@!?([0-9]+)>)', replace_user, content)
+            content = re.sub("(<@!?([0-9]+)>)", replace_user, content)
 
         if role_replace:
-            replace_role = functools.partial(replace, lambda v: (self.guild and self.guild.roles.get(v)), role_replace)
-            content = re.sub('(<@&([0-9]+)>)', replace_role, content)
+            replace_role = functools.partial(
+                replace,
+                lambda v: (self.guild and self.guild.roles.get(v)),
+                role_replace,
+            )
+            content = re.sub("(<@&([0-9]+)>)", replace_role, content)
 
         if channel_replace:
-            replace_channel = functools.partial(replace, self.client.state.channels.get, channel_replace)
-            content = re.sub('(<#([0-9]+)>)', replace_channel, content)
+            replace_channel = functools.partial(
+                replace, self.client.state.channels.get, channel_replace
+            )
+            content = re.sub("(<#([0-9]+)>)", replace_channel, content)
 
         return content
 
 
 class MessageTable(object):
-    def __init__(self, sep=' | ', codeblock=True, header_break=True, language=None):
+    def __init__(self, sep=" | ", codeblock=True, header_break=True, language=None):
         self.header = []
         self.entries = []
         self.size_index = {}
@@ -727,7 +763,7 @@ class MessageTable(object):
 
     def recalculate_size_index(self, cols):
         for idx, col in enumerate(cols):
-            size = len(unicodedata.normalize('NFC', col))
+            size = len(unicodedata.normalize("NFC", col))
             if idx not in self.size_index or size > self.size_index[idx]:
                 self.size_index[idx] = size
 
@@ -745,7 +781,7 @@ class MessageTable(object):
         data = self.sep.lstrip()
 
         for idx, col in enumerate(cols):
-            padding = ' ' * (self.size_index[idx] - len(col))
+            padding = " " * (self.size_index[idx] - len(col))
             data += col + padding + self.sep
 
         return data.rstrip()
@@ -756,12 +792,23 @@ class MessageTable(object):
             data = [self.compile_one(self.header)]
 
         if self.header and self.header_break:
-            data.append('-' * (sum(self.size_index.values()) + (len(self.header) * len(self.sep)) + 1))
+            data.append(
+                "-"
+                * (
+                    sum(self.size_index.values())
+                    + (len(self.header) * len(self.sep))
+                    + 1
+                )
+            )
 
         for row in self.entries:
             data.append(self.compile_one(row))
 
         if self.codeblock:
-            return '```{}'.format(self.language if self.language else '') + '\n'.join(data) + '```'
+            return (
+                "```{}".format(self.language if self.language else "")
+                + "\n".join(data)
+                + "```"
+            )
 
-        return '\n'.join(data)
+        return "\n".join(data)

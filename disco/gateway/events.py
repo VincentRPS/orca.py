@@ -7,7 +7,16 @@ from disco.types.channel import Channel, PermissionOverwrite
 from disco.types.message import Message, MessageReactionEmoji
 from disco.types.voice import VoiceState
 from disco.types.guild import Guild, GuildMember, Role, GuildEmoji
-from disco.types.base import Model, ModelMeta, Field, ListField, AutoDictField, UNSET, snowflake, datetime
+from disco.types.base import (
+    Model,
+    ModelMeta,
+    Field,
+    ListField,
+    AutoDictField,
+    UNSET,
+    snowflake,
+    datetime,
+)
 from disco.util.string import underscore
 
 # Mapping of discords event name to our event classes
@@ -18,7 +27,7 @@ class GatewayEventMeta(ModelMeta):
     def __new__(mcs, name, parents, dct):
         obj = super(GatewayEventMeta, mcs).__new__(mcs, name, parents, dct)
 
-        if name != 'GatewayEvent':
+        if name != "GatewayEvent":
             EVENTS_MAP[underscore(name).upper()] = obj
 
         return obj
@@ -37,11 +46,11 @@ class GatewayEvent(six.with_metaclass(GatewayEventMeta, Model)):
         """
         Create a new GatewayEvent instance based on event data.
         """
-        cls = EVENTS_MAP.get(data['t'])
+        cls = EVENTS_MAP.get(data["t"])
         if not cls:
-            raise Exception('Could not find cls for {} ({})'.format(data['t'], data))
+            raise Exception("Could not find cls for {} ({})".format(data["t"], data))
 
-        return cls.create(data['d'], client)
+        return cls.create(data["d"], client)
 
     @classmethod
     def create(cls, obj, client):
@@ -51,18 +60,16 @@ class GatewayEvent(six.with_metaclass(GatewayEventMeta, Model)):
         cls.raw_data = obj
 
         # If this event is wrapping a model, pull its fields
-        if hasattr(cls, '_wraps_model'):
+        if hasattr(cls, "_wraps_model"):
             alias, model = cls._wraps_model
 
-            data = {
-                k: obj.pop(k) for k in six.iterkeys(model._fields) if k in obj
-            }
+            data = {k: obj.pop(k) for k in six.iterkeys(model._fields) if k in obj}
 
             obj[alias] = data
 
         obj = cls(obj, client)
 
-        if hasattr(cls, '_attach'):
+        if hasattr(cls, "_attach"):
             field, to = cls._attach
             setattr(getattr(obj, to[0]), to[1], getattr(obj, field))
 
@@ -70,7 +77,7 @@ class GatewayEvent(six.with_metaclass(GatewayEventMeta, Model)):
 
     def __getattr__(self, name):
         try:
-            _proxy = object.__getattribute__(self, '_proxy')
+            _proxy = object.__getattribute__(self, "_proxy")
         except AttributeError:
             return object.__getattribute__(self, name)
 
@@ -92,6 +99,7 @@ def debug(func=None, match=None):
 
         cls.__init__ = new_init
         return cls
+
     return deco
 
 
@@ -104,6 +112,7 @@ def wraps_model(model, alias=None):
         cls._wraps_model = (alias, model)
         cls._proxy = alias
         return cls
+
     return deco
 
 
@@ -111,6 +120,7 @@ def proxy(field):
     def deco(cls):
         cls._proxy = field
         return cls
+
     return deco
 
 
@@ -118,6 +128,7 @@ def attach(field, to=None):
     def deco(cls):
         cls._attach = (field, to)
         return cls
+
     return deco
 
 
@@ -139,7 +150,8 @@ class Ready(GatewayEvent):
     private_channels list[:class:`disco.types.channel.Channel`]
         All private channels (DMs) open for this account.
     """
-    version = Field(int, alias='v')
+
+    version = Field(int, alias="v")
     session_id = Field(str)
     user = Field(User)
     guilds = ListField(Guild)
@@ -165,6 +177,7 @@ class GuildCreate(GatewayEvent):
         If false, this guild is coming online from a previously unavailable state,
         and if UNSET, this is a normal guild join event.
     """
+
     unavailable = Field(bool)
     presences = ListField(Presence)
 
@@ -200,6 +213,7 @@ class GuildDelete(GatewayEvent):
         If true, this guild is becoming unavailable, if UNSET this is a normal
         guild leave event.
     """
+
     id = Field(snowflake)
     unavailable = Field(bool)
 
@@ -233,7 +247,8 @@ class ChannelUpdate(ChannelCreate):
     channel : :class:`disco.types.channel.Channel`
         The channel which was updated.
     """
-    overwrites = AutoDictField(PermissionOverwrite, 'id', alias='permission_overwrites')
+
+    overwrites = AutoDictField(PermissionOverwrite, "id", alias="permission_overwrites")
 
 
 @wraps_model(Channel)
@@ -259,6 +274,7 @@ class ChannelPinsUpdate(GatewayEvent):
     last_pin_timestamp : datetime
         The time the last message was pinned.
     """
+
     channel_id = Field(snowflake)
     last_pin_timestamp = Field(datetime)
 
@@ -275,6 +291,7 @@ class GuildBanAdd(GatewayEvent):
     user : :class:`disco.types.user.User`
         The user being banned from the guild.
     """
+
     guild_id = Field(snowflake)
     user = Field(User)
 
@@ -312,6 +329,7 @@ class GuildEmojisUpdate(GatewayEvent):
     emojis : list[:class:`disco.types.guild.Emoji`]
         The new set of emojis for the guild.
     """
+
     guild_id = Field(snowflake)
     emojis = ListField(GuildEmoji)
 
@@ -325,6 +343,7 @@ class GuildIntegrationsUpdate(GatewayEvent):
     guild_id : snowflake
         The ID of the guild integrations where updated in.
     """
+
     guild_id = Field(snowflake)
 
 
@@ -343,6 +362,7 @@ class GuildMembersChunk(GatewayEvent):
     presences : list[:class:`disco.types.user.Presence`]
         An array of requested member presence states.
     """
+
     guild_id = Field(snowflake)
     members = ListField(GuildMember)
     not_found = ListField(snowflake)
@@ -353,7 +373,7 @@ class GuildMembersChunk(GatewayEvent):
         return self.client.state.guilds.get(self.guild_id)
 
 
-@wraps_model(GuildMember, alias='member')
+@wraps_model(GuildMember, alias="member")
 class GuildMemberAdd(GatewayEvent):
     """
     Sent when a user joins a guild.
@@ -365,7 +385,7 @@ class GuildMemberAdd(GatewayEvent):
     """
 
 
-@proxy('user')
+@proxy("user")
 class GuildMemberRemove(GatewayEvent):
     """
     Sent when a user leaves a guild (via leaving, kicking, or banning).
@@ -377,6 +397,7 @@ class GuildMemberRemove(GatewayEvent):
     user : :class:`disco.types.user.User`
         The user who was removed from the guild.
     """
+
     user = Field(User)
     guild_id = Field(snowflake)
 
@@ -385,7 +406,7 @@ class GuildMemberRemove(GatewayEvent):
         return self.client.state.guilds.get(self.guild_id)
 
 
-@wraps_model(GuildMember, alias='member')
+@wraps_model(GuildMember, alias="member")
 class GuildMemberUpdate(GatewayEvent):
     """
     Sent when a guilds member is updated.
@@ -397,8 +418,8 @@ class GuildMemberUpdate(GatewayEvent):
     """
 
 
-@proxy('role')
-@attach('guild_id', to=('role', 'guild_id'))
+@proxy("role")
+@attach("guild_id", to=("role", "guild_id"))
 class GuildRoleCreate(GatewayEvent):
     """
     Sent when a role is created.
@@ -410,6 +431,7 @@ class GuildRoleCreate(GatewayEvent):
     role : :class:`disco.types.guild.Role`
         The role that was created.
     """
+
     role = Field(Role)
     guild_id = Field(snowflake)
 
@@ -446,6 +468,7 @@ class GuildRoleDelete(GatewayEvent):
     role_id : snowflake
         The id of the role being deleted.
     """
+
     guild_id = Field(snowflake)
     role_id = Field(snowflake)
 
@@ -466,6 +489,7 @@ class MessageCreate(GatewayEvent):
     guild_id : snowflake
         The ID of the guild this message comes from.
     """
+
     guild_id = Field(snowflake)
 
 
@@ -481,6 +505,7 @@ class MessageUpdate(MessageCreate):
     guild_id : snowflake
         The ID of the guild this message exists in.
     """
+
     guild_id = Field(snowflake)
 
 
@@ -497,6 +522,7 @@ class MessageDelete(GatewayEvent):
     guild_id : snowflake
         The ID of the guild this message existed in.
     """
+
     id = Field(snowflake)
     channel_id = Field(snowflake)
     guild_id = Field(snowflake)
@@ -523,6 +549,7 @@ class MessageDeleteBulk(GatewayEvent):
     ids : list[snowflake]
         List of messages being deleted in the channel.
     """
+
     guild_id = Field(snowflake)
     channel_id = Field(snowflake)
     ids = ListField(snowflake)
@@ -550,6 +577,7 @@ class PresenceUpdate(GatewayEvent):
     roles : list[snowflake]
         List of roles the user from the presence is part of.
     """
+
     guild_id = Field(snowflake)
     roles = ListField(snowflake)
 
@@ -573,13 +601,14 @@ class TypingStart(GatewayEvent):
     timestamp : datetime
         When the user started typing.
     """
+
     guild_id = Field(snowflake)
     channel_id = Field(snowflake)
     user_id = Field(snowflake)
     timestamp = Field(datetime)
 
 
-@wraps_model(VoiceState, alias='state')
+@wraps_model(VoiceState, alias="state")
 class VoiceStateUpdate(GatewayEvent):
     """
     Sent when a users voice state changes.
@@ -604,6 +633,7 @@ class VoiceServerUpdate(GatewayEvent):
     guild_id : snowflake
         The guild ID this voice server update is for.
     """
+
     token = Field(str)
     endpoint = Field(str)
     guild_id = Field(snowflake)
@@ -620,6 +650,7 @@ class WebhooksUpdate(GatewayEvent):
     guild_id : snowflake
         The guild ID this webhooks update is for.
     """
+
     channel_id = Field(snowflake)
     guild_id = Field(snowflake)
 
@@ -641,6 +672,7 @@ class MessageReactionAdd(GatewayEvent):
     emoji : :class:`disco.types.message.MessageReactionEmoji`
         The emoji which was added.
     """
+
     guild_id = Field(snowflake)
     channel_id = Field(snowflake)
     message_id = Field(snowflake)
@@ -681,6 +713,7 @@ class MessageReactionRemove(GatewayEvent):
     emoji : :class:`disco.types.message.MessageReactionEmoji`
         The emoji which was removed.
     """
+
     guild_id = Field(snowflake)
     channel_id = Field(snowflake)
     message_id = Field(snowflake)
@@ -709,6 +742,7 @@ class MessageReactionRemoveAll(GatewayEvent):
     message_id : snowflake
         The ID of the message for which the reactions where removed from.
     """
+
     guild_id = Field(snowflake)
     channel_id = Field(snowflake)
     message_id = Field(snowflake)

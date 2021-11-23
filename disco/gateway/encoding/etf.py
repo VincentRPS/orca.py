@@ -10,7 +10,7 @@ else:
 
 
 class ETFEncoder(BaseEncoder):
-    TYPE = 'etf'
+    TYPE = "etf"
     OPCODE = ABNF.OPCODE_BINARY
 
     @staticmethod
@@ -20,5 +20,5 @@ class ETFEncoder(BaseEncoder):
     @staticmethod
     def decode(obj):
         if six.PY3:
-            return unpack(obj, encoding='utf-8', encode_binary_ext=True)
+            return unpack(obj, encoding="utf-8", encode_binary_ext=True)
         return unpack(obj)

@@ -9,22 +9,21 @@ class TestEmbeds(TestCase):
         self.assertDictEqual(
             embed.to_dict(),
             {
-                'image': {},
-                'author': {},
-                'video': {},
-                'thumbnail': {},
-                'footer': {},
-                'fields': [],
-                'type': 'rich',
-            })
+                "image": {},
+                "author": {},
+                "video": {},
+                "thumbnail": {},
+                "footer": {},
+                "fields": [],
+                "type": "rich",
+            },
+        )
 
     def test_embed(self):
         embed = MessageEmbed(
-            title='Test Title',
-            description='Test Description',
-            url='https://test.url/'
+            title="Test Title", description="Test Description", url="https://test.url/"
         )
         obj = embed.to_dict()
-        self.assertEqual(obj['title'], 'Test Title')
-        self.assertEqual(obj['description'], 'Test Description')
-        self.assertEqual(obj['url'], 'https://test.url/')
+        self.assertEqual(obj["title"], "Test Title")
+        self.assertEqual(obj["description"], "Test Description")
+        self.assertEqual(obj["url"], "https://test.url/")

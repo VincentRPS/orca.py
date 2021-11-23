@@ -2,9 +2,7 @@ from disco.types.permissions import Permissions, PermissionValue
 
 
 def test_permission_value_can():
-    admin_perms = PermissionValue(
-        Permissions.ADMINISTRATOR
-    )
+    admin_perms = PermissionValue(Permissions.ADMINISTRATOR)
 
     assert admin_perms.administrator
 

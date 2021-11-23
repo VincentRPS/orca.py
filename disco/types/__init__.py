@@ -7,12 +7,12 @@ from disco.types.voice import VoiceState  # noqa: F401
 
 # TODO: deprecate this entire file
 __all__ = {
-    'UNSET',
-    'Channel',
-    'Guild',
-    'GuildMember',
-    'Role',
-    'User',
-    'Message',
-    'VoiceState',
+    "UNSET",
+    "Channel",
+    "Guild",
+    "GuildMember",
+    "Role",
+    "User",
+    "Message",
+    "VoiceState",
 }

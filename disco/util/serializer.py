@@ -4,29 +4,32 @@ import types
 
 class Serializer(object):
     FORMATS = {
-        'json',
-        'yaml',
-        'pickle',
+        "json",
+        "yaml",
+        "pickle",
     }
 
     @classmethod
     def check_format(cls, fmt):
         if fmt not in cls.FORMATS:
-            raise Exception('Unsupported serialization format: {}'.format(fmt))
+            raise Exception("Unsupported serialization format: {}".format(fmt))
 
     @staticmethod
     def json():
         from json import loads, dumps
+
         return (loads, dumps)
 
     @staticmethod
     def yaml():
         from yaml import full_load, dump
+
         return (full_load, dump)
 
     @staticmethod
     def pickle():
         from pickle import loads, dumps
+
         return (loads, dumps)
 
     @classmethod

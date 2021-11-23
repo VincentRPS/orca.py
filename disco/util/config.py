@@ -6,17 +6,20 @@ from .serializer import Serializer
 
 class Config(object):
     def __init__(self, obj=None):
-        self.__dict__.update({
-            k: getattr(self, k) for k in dir(self.__class__)
-        })
+        self.__dict__.update({k: getattr(self, k) for k in dir(self.__class__)})
 
         # issue `DeprecationWarning`s
-        if hasattr(self.__class__, 'deprecated') and obj:
+        if hasattr(self.__class__, "deprecated") and obj:
             for deprecated_key, replacement in self.__class__.deprecated.items():
                 if deprecated_key in obj.keys():
                     warning_text = '"{0}" is deprecated.'.format(deprecated_key)
-                    warning_text += ('\nReplace "{0}" with "{1}".'.format(deprecated_key, replacement)
-                                     if replacement else '')
+                    warning_text += (
+                        '\nReplace "{0}" with "{1}".'.format(
+                            deprecated_key, replacement
+                        )
+                        if replacement
+                        else ""
+                    )
 
                     raise DeprecationWarning(warning_text)
 
@@ -30,7 +33,7 @@ class Config(object):
     def from_file(cls, path):
         inst = cls()
 
-        with open(path, 'r') as f:
+        with open(path, "r") as f:
             data = f.read()
 
         _, ext = os.path.splitext(path)
@@ -39,12 +42,12 @@ class Config(object):
         return inst
 
     def from_prefix(self, prefix):
-        prefix += '_'
+        prefix += "_"
         obj = {}
 
         for k, v in six.iteritems(self.__dict__):
             if k.startswith(prefix):
-                obj[k[len(prefix):]] = v
+                obj[k[len(prefix) :]] = v
 
         return Config(obj)
 

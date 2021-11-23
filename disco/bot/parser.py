@@ -4,25 +4,25 @@ import copy
 from disco.util.sanitize import S
 
 # Regex which splits out argument parts
-PARTS_RE = re.compile(r'(\<|\[|\{)((?:\w+|\:|\||\.\.\.| (?:[0-9]+))+)(?:\>|\]|\})')
+PARTS_RE = re.compile(r"(\<|\[|\{)((?:\w+|\:|\||\.\.\.| (?:[0-9]+))+)(?:\>|\]|\})")
 
 BOOL_OPTS = {
-    'yes': True,
-    'no': False,
-    'true': True,
-    'False': False,
-    '1': True,
-    '0': False,
-    'on': True,
-    'off': False,
+    "yes": True,
+    "no": False,
+    "true": True,
+    "False": False,
+    "1": True,
+    "0": False,
+    "on": True,
+    "off": False,
 }
 
 # Mapping of types
 TYPE_MAP = {
-    'str': lambda ctx, data: six.text_type(data),
-    'int': lambda ctx, data: int(data),
-    'float': lambda ctx, data: float(data),
-    'snowflake': lambda ctx, data: int(data),
+    "str": lambda ctx, data: six.text_type(data),
+    "int": lambda ctx, data: int(data),
+    "float": lambda ctx, data: float(data),
+    "snowflake": lambda ctx, data: int(data),
 }
 
 
@@ -32,7 +32,7 @@ def to_bool(ctx, data):
     raise TypeError
 
 
-TYPE_MAP['bool'] = to_bool
+TYPE_MAP["bool"] = to_bool
 
 
 class ArgumentError(Exception):
@@ -57,6 +57,7 @@ class Argument(object):
     types : list(type)
         Types this argument supports.
     """
+
     def __init__(self, raw):
         self.name = None
         self.count = 1
@@ -78,25 +79,25 @@ class Argument(object):
         """
         prefix, part = raw
 
-        if prefix == '<':
+        if prefix == "<":
             self.required = True
         else:
             self.required = False
 
         # Whether this is a flag
-        self.flag = (prefix == '{')
+        self.flag = prefix == "{"
 
         if not self.flag:
-            if part.endswith('...'):
+            if part.endswith("..."):
                 part = part[:-3]
                 self.count = 0
-            elif ' ' in part:
-                split = part.split(' ', 1)
+            elif " " in part:
+                split = part.split(" ", 1)
                 part, self.count = split[0], int(split[1])
 
-            if ':' in part:
-                part, typeinfo = part.split(':')
-                self.types = typeinfo.split('|')
+            if ":" in part:
+                part, typeinfo = part.split(":")
+                self.types = typeinfo.split("|")
 
         self.name = part.strip()
 
@@ -112,6 +113,7 @@ class ArgumentSet(object):
     types : dict(str, type)
         All types supported by this ArgumentSet.
     """
+
     def __init__(self, args=None, custom_types=None):
         self.args = args or []
         self.types = copy.copy(TYPE_MAP)
@@ -146,7 +148,7 @@ class ArgumentSet(object):
         for typ_name in types:
             typ = self.types.get(typ_name)
             if not typ:
-                raise Exception('Unknown type {}'.format(typ_name))
+                raise Exception("Unknown type {}".format(typ_name))
 
             try:
                 return typ(ctx, value)
@@ -161,10 +163,10 @@ class ArgumentSet(object):
         Add a new :class:`Argument` to this argument specification/set.
         """
         if self.args and not self.args[-1].required and arg.required:
-            raise Exception('Required argument cannot come after an optional argument')
+            raise Exception("Required argument cannot come after an optional argument")
 
         if self.args and not self.args[-1].count:
-            raise Exception('No arguments can come after a catch-all')
+            raise Exception("No arguments can come after a catch-all")
 
         self.args.append(arg)
 
@@ -179,8 +181,8 @@ class ArgumentSet(object):
             new_rawargs = []
 
             for offset, raw in enumerate(rawargs):
-                if raw.startswith('-'):
-                    raw = raw.lstrip('-')
+                if raw.startswith("-"):
+                    raw = raw.lstrip("-")
                     if raw in flags:
                         parsed[raw] = True
                         continue
@@ -195,22 +197,25 @@ class ArgumentSet(object):
             if arg.count == 0:
                 raw = rawargs[index:]
             else:
-                raw = rawargs[index:index + arg.true_count]
+                raw = rawargs[index : index + arg.true_count]
 
             if arg.types:
                 for idx, r in enumerate(raw):
                     try:
                         raw[idx] = self.convert(ctx, arg.types, r)
                     except Exception:
-                        raise ArgumentError(u'cannot convert `{}` to `{}`'.format(
-                            S(r), ', '.join(arg.types),
-                        ))
+                        raise ArgumentError(
+                            u"cannot convert `{}` to `{}`".format(
+                                S(r),
+                                ", ".join(arg.types),
+                            )
+                        )
 
             if arg.count == 1:
                 raw = raw[0]
 
-            if (not arg.types or arg.types == ['str']) and isinstance(raw, list):
-                raw = ' '.join(raw)
+            if (not arg.types or arg.types == ["str"]) and isinstance(raw, list):
+                raw = " ".join(raw)
 
             parsed[arg.name] = raw
 

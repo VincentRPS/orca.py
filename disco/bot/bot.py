@@ -80,7 +80,8 @@ class BotConfig(Config):
     http_port : int
         The port for the HTTP Flask server (if enabled).
     """
-    deprecated = {'commands_prefix': 'command_prefixes'}
+
+    deprecated = {"commands_prefix": "command_prefixes"}
 
     levels = {}
     plugins = []
@@ -91,11 +92,11 @@ class BotConfig(Config):
     commands_require_mention = True
     commands_mention_rules = {
         # 'here': False,
-        'everyone': False,
-        'role': True,
-        'user': True,
+        "everyone": False,
+        "role": True,
+        "user": True,
     }
-    commands_prefix = ''  # now deprecated
+    commands_prefix = ""  # now deprecated
     command_prefixes = []
     commands_prefix_getter = None
     commands_allow_edit = True
@@ -103,16 +104,16 @@ class BotConfig(Config):
     commands_group_abbrev = True
 
     plugin_config_provider = None
-    plugin_config_format = 'json'
-    plugin_config_dir = 'config'
+    plugin_config_format = "json"
+    plugin_config_dir = "config"
 
     storage_enabled = True
     storage_fsync = True
-    storage_serializer = 'json'
-    storage_path = 'storage.json'
+    storage_serializer = "json"
+    storage_path = "storage.json"
 
     http_enabled = False
-    http_host = '0.0.0.0'
+    http_host = "0.0.0.0"
     http_port = 7575
 
 
@@ -138,6 +139,7 @@ class Bot(LoggingClass):
     plugins : dict(str, :class:`disco.bot.plugin.Plugin`)
         Any plugins this bot has loaded.
     """
+
     def __init__(self, client, config=None):
         self.client = client
         self.config = config or BotConfig()
@@ -151,11 +153,11 @@ class Bot(LoggingClass):
         # The storage object acts as a dynamic contextual aware store
         self.storage = None
         if self.config.storage_enabled:
-            self.storage = Storage(self.ctx, self.config.from_prefix('storage'))
+            self.storage = Storage(self.ctx, self.config.from_prefix("storage"))
 
         # If the manhole is enabled, add this bot as a local
         if self.client.config.manhole_enable:
-            self.client.manhole_locals['bot'] = self
+            self.client.manhole_locals["bot"] = self
 
         # Setup HTTP server (Flask app) if enabled
         self.http = None
@@ -163,11 +165,17 @@ class Bot(LoggingClass):
             try:
                 from flask import Flask
             except ImportError:
-                self.log.warning('Failed to enable HTTP server, Flask is not installed')
+                self.log.warning("Failed to enable HTTP server, Flask is not installed")
             else:
-                self.log.info('Starting HTTP server bound to %s:%s', self.config.http_host, self.config.http_port)
-                self.http = Flask('disco')
-                self.http_server = WSGIServer((self.config.http_host, self.config.http_port), self.http)
+                self.log.info(
+                    "Starting HTTP server bound to %s:%s",
+                    self.config.http_host,
+                    self.config.http_port,
+                )
+                self.http = Flask("disco")
+                self.http_server = WSGIServer(
+                    (self.config.http_host, self.config.http_port), self.http
+                )
                 self.http_server_greenlet = gevent.spawn(self.http_server.serve_forever)
 
         self.plugins = {}
@@ -175,14 +183,14 @@ class Bot(LoggingClass):
 
         # Only bind event listeners if we're going to parse commands
         if self.config.commands_enabled:
-            self.client.events.on('MessageCreate', self.on_message_create)
+            self.client.events.on("MessageCreate", self.on_message_create)
 
             if self.config.commands_allow_edit:
-                self.client.events.on('MessageUpdate', self.on_message_update)
+                self.client.events.on("MessageUpdate", self.on_message_update)
 
         # If we have a level getter and its a string, try to load it
         if isinstance(self.config.commands_level_getter, six.string_types):
-            mod, func = self.config.commands_level_getter.rsplit('.', 1)
+            mod, func = self.config.commands_level_getter.rsplit(".", 1)
             mod = importlib.import_module(mod)
             self.config.commands_level_getter = getattr(mod, func)
 
@@ -202,7 +210,11 @@ class Bot(LoggingClass):
         for entity_id, level in list(six.iteritems(self.config.levels)):
             del self.config.levels[entity_id]
             entity_id = int(entity_id) if str(entity_id).isdigit() else entity_id
-            level = int(level) if str(level).isdigit() else get_enum_value_by_name(CommandLevels, level)
+            level = (
+                int(level)
+                if str(level).isdigit()
+                else get_enum_value_by_name(CommandLevels, level)
+            )
             self.config.levels[entity_id] = level
 
     @classmethod
@@ -218,6 +230,7 @@ class Bot(LoggingClass):
             Any plugins to load after creating the new bot instance.
         """
         from disco.cli import disco_main
+
         inst = cls(disco_main())
 
         for plugin in plugins:
@@ -279,7 +292,7 @@ class Bot(LoggingClass):
         Computes a single regex which matches all possible command combinations.
         """
         commands = list(self.commands)
-        re_str = '|'.join(command.regex(grouped=False) for command in commands)
+        re_str = "|".join(command.regex(grouped=False) for command in commands)
         if re_str:
             self.command_matches_re = re.compile(re_str, re.I)
         else:
@@ -317,15 +330,21 @@ class Bot(LoggingClass):
 
             mention_roles = []
             if msg.guild:
-                mention_roles = list(filter(lambda r: msg.is_mentioned(r),
-                                            msg.guild.get_member(self.client.state.me).roles))
+                mention_roles = list(
+                    filter(
+                        lambda r: msg.is_mentioned(r),
+                        msg.guild.get_member(self.client.state.me).roles,
+                    )
+                )
 
-            if not any((
-                mention_rules.get('user', True) and mention_direct,
-                mention_rules.get('everyone', False) and mention_everyone,
-                mention_rules.get('role', False) and any(mention_roles),
-                msg.channel.is_dm,
-            )):
+            if not any(
+                (
+                    mention_rules.get("user", True) and mention_direct,
+                    mention_rules.get("everyone", False) and mention_everyone,
+                    mention_rules.get("role", False) and any(mention_roles),
+                    msg.channel.is_dm,
+                )
+            ):
                 return []
 
             if mention_direct:
@@ -333,15 +352,15 @@ class Bot(LoggingClass):
                     member = msg.guild.get_member(self.client.state.me)
                     if member:
                         # Filter both the normal and nick mentions
-                        content = content.replace(member.user.mention, '', 1)
-                        content = content.replace(member.user.mention_nickname, '', 1)
+                        content = content.replace(member.user.mention, "", 1)
+                        content = content.replace(member.user.mention_nickname, "", 1)
                 else:
-                    content = content.replace(self.client.state.me.mention, '', 1)
+                    content = content.replace(self.client.state.me.mention, "", 1)
             elif mention_everyone:
-                content = content.replace('@everyone', '', 1)
+                content = content.replace("@everyone", "", 1)
             else:
                 for role in mention_roles:
-                    content = content.replace('<@{}>'.format(role), '', 1)
+                    content = content.replace("<@{}>".format(role), "", 1)
 
             content = content.lstrip()
 
@@ -351,7 +370,7 @@ class Bot(LoggingClass):
         # that may occur would be if one prefix was `!` and one was `!a`.
         for prefix in prefixes:
             if prefix and content.startswith(prefix):
-                content = content[len(prefix):]
+                content = content[len(prefix) :]
                 break
         else:
             if not require_mention:  # don't want to prematurely return
@@ -388,7 +407,9 @@ class Bot(LoggingClass):
         if not command.level:
             return True
 
-        level = self.get_level(msg.author if not msg.guild else msg.guild.get_member(msg.author))
+        level = self.get_level(
+            msg.author if not msg.guild else msg.guild.get_member(msg.author)
+        )
 
         if level >= command.level:
             return True
@@ -409,15 +430,20 @@ class Bot(LoggingClass):
         bool
             Whether any commands where successfully triggered by the message.
         """
-        custom_message_prefixes = (self.config.commands_prefix_getter(msg)
-                                   if self.config.commands_prefix_getter else [])
+        custom_message_prefixes = (
+            self.config.commands_prefix_getter(msg)
+            if self.config.commands_prefix_getter
+            else []
+        )
 
-        commands = list(self.get_commands_for_message(
-            self.config.commands_require_mention,
-            self.config.commands_mention_rules,
-            custom_message_prefixes or self.config.command_prefixes,
-            msg,
-        ))
+        commands = list(
+            self.get_commands_for_message(
+                self.config.commands_require_mention,
+                self.config.commands_mention_rules,
+                custom_message_prefixes or self.config.command_prefixes,
+                msg,
+            )
+        )
 
         if not len(commands):
             return False
@@ -483,10 +509,14 @@ class Bot(LoggingClass):
             inst = inst(self, config)
 
         if inst.__class__.__name__ in self.plugins:
-            self.log.warning('Attempted to add already added plugin %s', inst.__class__.__name__)
-            raise Exception('Cannot add already added plugin: {}'.format(inst.__class__.__name__))
+            self.log.warning(
+                "Attempted to add already added plugin %s", inst.__class__.__name__
+            )
+            raise Exception(
+                "Cannot add already added plugin: {}".format(inst.__class__.__name__)
+            )
 
-        self.ctx['plugin'] = self.plugins[inst.__class__.__name__] = inst
+        self.ctx["plugin"] = self.plugins[inst.__class__.__name__] = inst
         self.plugins[inst.__class__.__name__].load(ctx or {})
         self.recompute()
         self.ctx.drop()
@@ -501,7 +531,9 @@ class Bot(LoggingClass):
             Plugin class to unload and remove.
         """
         if cls.__name__ not in self.plugins:
-            raise Exception('Cannot remove non-existent plugin: {}'.format(cls.__name__))
+            raise Exception(
+                "Cannot remove non-existent plugin: {}".format(cls.__name__)
+            )
 
         ctx = {}
         self.plugins[cls.__name__].unload(ctx)
@@ -539,15 +571,20 @@ class Bot(LoggingClass):
             self.add_plugin(plugin, config)
 
         if not loaded:
-            raise Exception('Could not find any plugins to load within module {}'.format(path))
+            raise Exception(
+                "Could not find any plugins to load within module {}".format(path)
+            )
 
     def load_plugin_config(self, cls):
         name = cls.__name__.lower()
-        if name.endswith('plugin'):
+        if name.endswith("plugin"):
             name = name[:-6]
 
-        path = os.path.join(
-            self.config.plugin_config_dir, name) + '.' + self.config.plugin_config_format
+        path = (
+            os.path.join(self.config.plugin_config_dir, name)
+            + "."
+            + self.config.plugin_config_format
+        )
 
         data = {}
         if self.config.shared_config:
@@ -557,10 +594,12 @@ class Bot(LoggingClass):
             data.update(self.config.plugin_config[name])
 
         if os.path.exists(path):
-            with open(path, 'r') as f:
-                data.update(Serializer.loads(self.config.plugin_config_format, f.read()))
+            with open(path, "r") as f:
+                data.update(
+                    Serializer.loads(self.config.plugin_config_format, f.read())
+                )
 
-        if hasattr(cls, 'config_cls'):
+        if hasattr(cls, "config_cls"):
             inst = cls.config_cls()
             if data:
                 inst.update(data)

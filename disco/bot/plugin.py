@@ -30,7 +30,7 @@ def register_plugin_base_class(cls):
     the automatic plugin loading to consider the class for loading.
     """
     if not inspect.isclass(cls):
-        raise TypeError('cls must be a class')
+        raise TypeError("cls must be a class")
 
     _plugin_base_classes.add(cls)
     return cls
@@ -53,9 +53,9 @@ def find_loadable_plugins(mod):
         if modattr in _plugin_base_classes:
             continue
 
-        if getattr(modattr, '_shallow', False) and Plugin in modattr.__bases__:
+        if getattr(modattr, "_shallow", False) and Plugin in modattr.__bases__:
             warnings.warn(
-                'Setting _shallow to avoid plugin loading has been deprecated, see `register_plugin_base_class`',
+                "Setting _shallow to avoid plugin loading has been deprecated, see `register_plugin_base_class`",
                 DeprecationWarning,
             )
             continue
@@ -70,12 +70,13 @@ class BasePluginDeco(object):
     @classmethod
     def add_meta_deco(cls, meta):
         def deco(f):
-            if not hasattr(f, 'meta'):
+            if not hasattr(f, "meta"):
                 f.meta = []
 
             f.meta.append(meta)
 
             return f
+
         return deco
 
     @classmethod
@@ -83,9 +84,11 @@ class BasePluginDeco(object):
         """
         Sets the plugins config class to the specified config class.
         """
+
         def deco(plugin_cls):
             plugin_cls.config_cls = config_cls
             return plugin_cls
+
         return deco
 
     @classmethod
@@ -93,24 +96,28 @@ class BasePluginDeco(object):
         """
         Binds the function to listen for a given event name.
         """
-        return cls.add_meta_deco({
-            'type': 'listener',
-            'what': 'event',
-            'args': args,
-            'kwargs': kwargs,
-        })
+        return cls.add_meta_deco(
+            {
+                "type": "listener",
+                "what": "event",
+                "args": args,
+                "kwargs": kwargs,
+            }
+        )
 
     @classmethod
     def listen_packet(cls, *args, **kwargs):
         """
         Binds the function to listen for a given gateway op code.
         """
-        return cls.add_meta_deco({
-            'type': 'listener',
-            'what': 'packet',
-            'args': args,
-            'kwargs': kwargs,
-        })
+        return cls.add_meta_deco(
+            {
+                "type": "listener",
+                "what": "packet",
+                "args": args,
+                "kwargs": kwargs,
+            }
+        )
 
     @classmethod
     def command(cls, *args, **kwargs):
@@ -118,80 +125,96 @@ class BasePluginDeco(object):
         Creates a new command attached to the function.
         """
 
-        return cls.add_meta_deco({
-            'type': 'command',
-            'args': args,
-            'kwargs': kwargs,
-        })
+        return cls.add_meta_deco(
+            {
+                "type": "command",
+                "args": args,
+                "kwargs": kwargs,
+            }
+        )
 
     @classmethod
     def pre_command(cls):
         """
         Runs a function before a command is triggered.
         """
-        return cls.add_meta_deco({
-            'type': 'pre_command',
-        })
+        return cls.add_meta_deco(
+            {
+                "type": "pre_command",
+            }
+        )
 
     @classmethod
     def post_command(cls):
         """
         Runs a function after a command is triggered.
         """
-        return cls.add_meta_deco({
-            'type': 'post_command',
-        })
+        return cls.add_meta_deco(
+            {
+                "type": "post_command",
+            }
+        )
 
     @classmethod
     def pre_listener(cls):
         """
         Runs a function before a listener is triggered.
         """
-        return cls.add_meta_deco({
-            'type': 'pre_listener',
-        })
+        return cls.add_meta_deco(
+            {
+                "type": "pre_listener",
+            }
+        )
 
     @classmethod
     def post_listener(cls):
         """
         Runs a function after a listener is triggered.
         """
-        return cls.add_meta_deco({
-            'type': 'post_listener',
-        })
+        return cls.add_meta_deco(
+            {
+                "type": "post_listener",
+            }
+        )
 
     @classmethod
     def schedule(cls, *args, **kwargs):
         """
         Runs a function repeatedly, waiting for a specified interval.
         """
-        return cls.add_meta_deco({
-            'type': 'schedule',
-            'args': args,
-            'kwargs': kwargs,
-        })
+        return cls.add_meta_deco(
+            {
+                "type": "schedule",
+                "args": args,
+                "kwargs": kwargs,
+            }
+        )
 
     @classmethod
     def add_argument(cls, *args, **kwargs):
         """
         Adds an argument to the argument parser.
         """
-        return cls.add_meta_deco({
-            'type': 'parser.add_argument',
-            'args': args,
-            'kwargs': kwargs,
-        })
+        return cls.add_meta_deco(
+            {
+                "type": "parser.add_argument",
+                "args": args,
+                "kwargs": kwargs,
+            }
+        )
 
     @classmethod
     def route(cls, *args, **kwargs):
         """
         Adds an HTTP route.
         """
-        return cls.add_meta_deco({
-            'type': 'http.add_route',
-            'args': args,
-            'kwargs': kwargs,
-        })
+        return cls.add_meta_deco(
+            {
+                "type": "http.add_route",
+                "args": args,
+                "kwargs": kwargs,
+            }
+        )
 
 
 class PluginDeco(BasePluginDeco):
@@ -199,6 +222,7 @@ class PluginDeco(BasePluginDeco):
     A utility mixin which provides various function decorators that a plugin
     author can use to create bound event/command handlers.
     """
+
     parser = BasePluginDeco
 
 
@@ -225,6 +249,7 @@ class Plugin(LoggingClass, PluginDeco):
     commands : list(:class:`disco.bot.command.Command`)
         List of all commands this plugin owns.
     """
+
     def __init__(self, bot, config):
         super(Plugin, self).__init__()
         self.bot = bot
@@ -246,12 +271,14 @@ class Plugin(LoggingClass, PluginDeco):
         self.meta_funcs = []
 
         for name, member in inspect.getmembers(self, predicate=inspect.ismethod):
-            if hasattr(member, 'meta'):
+            if hasattr(member, "meta"):
                 self.meta_funcs.append(member)
 
                 # Unsmash local functions
                 if hasattr(Plugin, name):
-                    method = types.MethodType(getattr(Plugin, name), self, self.__class__)
+                    method = types.MethodType(
+                        getattr(Plugin, name), self, self.__class__
+                    )
                     setattr(self, name, method)
 
         self.bind_all()
@@ -266,35 +293,37 @@ class Plugin(LoggingClass, PluginDeco):
         self.schedules = {}
         self.greenlets = weakref.WeakSet()
 
-        self._pre = {'command': [], 'listener': []}
-        self._post = {'command': [], 'listener': []}
+        self._pre = {"command": [], "listener": []}
+        self._post = {"command": [], "listener": []}
 
         for member in self.meta_funcs:
             for meta in reversed(member.meta):
                 self.bind_meta(member, meta)
 
     def bind_meta(self, member, meta):
-        if meta['type'] == 'listener':
-            self.register_listener(member, meta['what'], *meta['args'], **meta['kwargs'])
-        elif meta['type'] == 'command':
+        if meta["type"] == "listener":
+            self.register_listener(
+                member, meta["what"], *meta["args"], **meta["kwargs"]
+            )
+        elif meta["type"] == "command":
             # meta['kwargs']['update'] = True
-            self.register_command(member, *meta['args'], **meta['kwargs'])
-        elif meta['type'] == 'schedule':
-            self.register_schedule(member, *meta['args'], **meta['kwargs'])
-        elif meta['type'].startswith('pre_') or meta['type'].startswith('post_'):
-            when, typ = meta['type'].split('_', 1)
+            self.register_command(member, *meta["args"], **meta["kwargs"])
+        elif meta["type"] == "schedule":
+            self.register_schedule(member, *meta["args"], **meta["kwargs"])
+        elif meta["type"].startswith("pre_") or meta["type"].startswith("post_"):
+            when, typ = meta["type"].split("_", 1)
             self.register_trigger(typ, when, member)
-        elif meta['type'].startswith('parser.'):
+        elif meta["type"].startswith("parser."):
             for command in self.commands:
                 if command.func == member:
-                    getattr(command.parser, meta['type'].split('.', 1)[-1])(
-                        *meta['args'],
-                        **meta['kwargs'])
-        elif meta['type'] == 'http.add_route':
-            meta['kwargs']['view_func'] = member
-            self.bot.http.add_url_rule(*meta['args'], **meta['kwargs'])
+                    getattr(command.parser, meta["type"].split(".", 1)[-1])(
+                        *meta["args"], **meta["kwargs"]
+                    )
+        elif meta["type"] == "http.add_route":
+            meta["kwargs"]["view_func"] = member
+            self.bot.http.add_url_rule(*meta["args"], **meta["kwargs"])
         else:
-            raise Exception('unhandled meta type {}'.format(meta))
+            raise Exception("unhandled meta type {}".format(meta))
 
     def handle_exception(self, greenlet, event):
         pass
@@ -306,7 +335,7 @@ class Plugin(LoggingClass, PluginDeco):
         def _event_callback(event):
             for k, v in kwargs.items():
                 obj = event
-                for inst in k.split('__'):
+                for inst in k.split("__"):
                     obj = getattr(obj, inst)
 
                 if obj != v:
@@ -324,7 +353,7 @@ class Plugin(LoggingClass, PluginDeco):
 
     def spawn_wrap(self, spawner, method, *args, **kwargs):
         def wrapped(*args, **kwargs):
-            self.ctx['plugin'] = self
+            self.ctx["plugin"] = self
             try:
                 res = method(*args, **kwargs)
                 return res
@@ -339,7 +368,9 @@ class Plugin(LoggingClass, PluginDeco):
         return self.spawn_wrap(gevent.spawn, *args, **kwargs)
 
     def spawn_later(self, delay, *args, **kwargs):
-        return self.spawn_wrap(functools.partial(gevent.spawn_later, delay), *args, **kwargs)
+        return self.spawn_wrap(
+            functools.partial(gevent.spawn_later, delay), *args, **kwargs
+        )
 
     def execute(self, event):
         """
@@ -359,24 +390,24 @@ class Plugin(LoggingClass, PluginDeco):
         """
         Registers a trigger.
         """
-        getattr(self, '_' + when)[typ].append(func)
+        getattr(self, "_" + when)[typ].append(func)
 
     def dispatch(self, typ, func, event, *args, **kwargs):
         # Link the greenlet with our exception handler
         gevent.getcurrent().link_exception(lambda g: self.handle_exception(g, event))
 
         # TODO: this is ugly
-        if typ != 'command':
+        if typ != "command":
             self.greenlets.add(gevent.getcurrent())
 
-        self.ctx['plugin'] = self
+        self.ctx["plugin"] = self
 
-        if hasattr(event, 'guild'):
-            self.ctx['guild'] = event.guild
-        if hasattr(event, 'channel'):
-            self.ctx['channel'] = event.channel
-        if hasattr(event, 'author'):
-            self.ctx['user'] = event.author
+        if hasattr(event, "guild"):
+            self.ctx["guild"] = event.guild
+        if hasattr(event, "channel"):
+            self.ctx["channel"] = event.channel
+        if hasattr(event, "author"):
+            self.ctx["user"] = event.author
 
         for pre in self._pre[typ]:
             event = pre(func, event, args, kwargs)
@@ -404,14 +435,14 @@ class Plugin(LoggingClass, PluginDeco):
         desc
             The descriptor of the event/packet.
         """
-        args = list(args) + [functools.partial(self.dispatch, 'listener', func)]
+        args = list(args) + [functools.partial(self.dispatch, "listener", func)]
 
-        if what == 'event':
+        if what == "event":
             li = self.bot.client.events.on(*args, **kwargs)
-        elif what == 'packet':
+        elif what == "packet":
             li = self.bot.client.packets.on(*args, **kwargs)
         else:
-            raise Exception('Invalid listener what: {}'.format(what))
+            raise Exception("Invalid listener what: {}".format(what))
 
         self.listeners.append(li)
 

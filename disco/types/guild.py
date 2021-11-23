@@ -5,7 +5,15 @@ from disco.api.http import APIException
 from disco.util.paginator import Paginator
 from disco.util.snowflake import to_snowflake
 from disco.types.base import (
-    SlottedModel, Field, ListField, AutoDictField, DictField, snowflake, text, enum, datetime,
+    SlottedModel,
+    Field,
+    ListField,
+    AutoDictField,
+    DictField,
+    snowflake,
+    text,
+    enum,
+    datetime,
     cached_property,
 )
 from disco.types.user import User
@@ -53,6 +61,7 @@ class GuildEmoji(Emoji):
     animated : bool
         Whether this emoji is animated.
     """
+
     id = Field(snowflake)
     guild_id = Field(snowflake)
     name = Field(text)
@@ -62,7 +71,7 @@ class GuildEmoji(Emoji):
     animated = Field(bool)
 
     def __str__(self):
-        return u'<{}:{}:{}>'.format('a' if self.animated else '', self.name, self.id)
+        return u"<{}:{}:{}>".format("a" if self.animated else "", self.name, self.id)
 
     def update(self, **kwargs):
         return self.client.api.guilds_emojis_modify(self.guild_id, self.id, **kwargs)
@@ -72,7 +81,9 @@ class GuildEmoji(Emoji):
 
     @property
     def url(self):
-        return 'https://cdn.discordapp.com/emojis/{}.{}'.format(self.id, 'gif' if self.animated else 'png')
+        return "https://cdn.discordapp.com/emojis/{}.{}".format(
+            self.id, "gif" if self.animated else "png"
+        )
 
     @cached_property
     def guild(self):
@@ -104,6 +115,7 @@ class Role(SlottedModel):
     position : int
         The position of this role in the hierarchy.
     """
+
     id = Field(snowflake)
     guild_id = Field(snowflake)
     name = Field(text)
@@ -125,7 +137,7 @@ class Role(SlottedModel):
 
     @property
     def mention(self):
-        return '<@&{}>'.format(self.id)
+        return "<@&{}>".format(self.id)
 
     @cached_property
     def guild(self):
@@ -165,6 +177,7 @@ class GuildMember(SlottedModel):
     premium_since : datetime
         When this user set their Nitro boost to this server.
     """
+
     user = Field(User)
     guild_id = Field(snowflake)
     nick = Field(text)
@@ -227,9 +240,13 @@ class GuildMember(SlottedModel):
             The nickname (or none to reset) to set.
         """
         if self.client.state.me.id == self.user.id:
-            self.client.api.guilds_members_me_nick(self.guild.id, nick=nickname or '', **kwargs)
+            self.client.api.guilds_members_me_nick(
+                self.guild.id, nick=nickname or "", **kwargs
+            )
         else:
-            self.client.api.guilds_members_modify(self.guild.id, self.user.id, nick=nickname or '', **kwargs)
+            self.client.api.guilds_members_modify(
+                self.guild.id, self.user.id, nick=nickname or "", **kwargs
+            )
 
     def disconnect(self):
         """
@@ -241,10 +258,14 @@ class GuildMember(SlottedModel):
         self.client.api.guilds_members_modify(self.guild.id, self.user.id, **kwargs)
 
     def add_role(self, role, **kwargs):
-        self.client.api.guilds_members_roles_add(self.guild.id, self.user.id, to_snowflake(role), **kwargs)
+        self.client.api.guilds_members_roles_add(
+            self.guild.id, self.user.id, to_snowflake(role), **kwargs
+        )
 
     def remove_role(self, role, **kwargs):
-        self.client.api.guilds_members_roles_remove(self.guild.id, self.user.id, to_snowflake(role), **kwargs)
+        self.client.api.guilds_members_roles_remove(
+            self.guild.id, self.user.id, to_snowflake(role), **kwargs
+        )
 
     @cached_property
     def owner(self):
@@ -253,7 +274,7 @@ class GuildMember(SlottedModel):
     @cached_property
     def mention(self):
         if self.nick:
-            return '<@!{}>'.format(self.id)
+            return "<@!{}>".format(self.id)
         return self.user.mention
 
     @property
@@ -323,6 +344,7 @@ class Guild(SlottedModel, Permissible):
     premium_subscription_count : int
         The amount of users using their Nitro boost on this guild.
     """
+
     id = Field(snowflake)
     owner_id = Field(snowflake)
     afk_channel_id = Field(snowflake)
@@ -340,11 +362,11 @@ class Guild(SlottedModel, Permissible):
     default_message_notifications = Field(enum(DefaultMessageNotificationsLevel))
     mfa_level = Field(int)
     features = ListField(str)
-    members = AutoDictField(GuildMember, 'id')
-    channels = AutoDictField(Channel, 'id')
-    roles = AutoDictField(Role, 'id')
-    emojis = AutoDictField(GuildEmoji, 'id')
-    voice_states = AutoDictField(VoiceState, 'session_id')
+    members = AutoDictField(GuildMember, "id")
+    channels = AutoDictField(Channel, "id")
+    roles = AutoDictField(Role, "id")
+    emojis = AutoDictField(GuildEmoji, "id")
+    voice_states = AutoDictField(VoiceState, "session_id")
     member_count = Field(int)
     premium_tier = Field(int)
     premium_subscription_count = Field(int, default=0)
@@ -356,11 +378,11 @@ class Guild(SlottedModel, Permissible):
     def __init__(self, *args, **kwargs):
         super(Guild, self).__init__(*args, **kwargs)
 
-        self.attach(six.itervalues(self.channels), {'guild_id': self.id})
-        self.attach(six.itervalues(self.members), {'guild_id': self.id})
-        self.attach(six.itervalues(self.roles), {'guild_id': self.id})
-        self.attach(six.itervalues(self.emojis), {'guild_id': self.id})
-        self.attach(six.itervalues(self.voice_states), {'guild_id': self.id})
+        self.attach(six.itervalues(self.channels), {"guild_id": self.id})
+        self.attach(six.itervalues(self.members), {"guild_id": self.id})
+        self.attach(six.itervalues(self.roles), {"guild_id": self.id})
+        self.attach(six.itervalues(self.emojis), {"guild_id": self.id})
+        self.attach(six.itervalues(self.voice_states), {"guild_id": self.id})
 
     @cached_property
     def owner(self):
@@ -430,7 +452,9 @@ class Guild(SlottedModel, Permissible):
         return self.client.api.guilds_prune_count_get(self.id, days=days)
 
     def prune(self, days=None, compute_prune_count=None):
-        return self.client.api.guilds_prune_create(self.id, days=days, compute_prune_count=compute_prune_count)
+        return self.client.api.guilds_prune_create(
+            self.id, days=days, compute_prune_count=compute_prune_count
+        )
 
     def create_role(self, **kwargs):
         """
@@ -450,21 +474,28 @@ class Guild(SlottedModel, Permissible):
         self.client.api.guilds_roles_delete(self.id, to_snowflake(role), **kwargs)
 
     def update_role(self, role, **kwargs):
-        if 'permissions' in kwargs and isinstance(kwargs['permissions'], PermissionValue):
-            kwargs['permissions'] = kwargs['permissions'].value
+        if "permissions" in kwargs and isinstance(
+            kwargs["permissions"], PermissionValue
+        ):
+            kwargs["permissions"] = kwargs["permissions"].value
 
-        return self.client.api.guilds_roles_modify(self.id, to_snowflake(role), **kwargs)
+        return self.client.api.guilds_roles_modify(
+            self.id, to_snowflake(role), **kwargs
+        )
 
     def request_guild_members(self, query=None, limit=0, presences=False):
         self.client.gw.request_guild_members(self.id, query, limit, presences)
 
     def request_guild_members_by_id(self, user_id_or_ids, limit=0, presences=False):
-        self.client.gw.request_guild_members_by_id(self.id, user_id_or_ids, limit, presences)
+        self.client.gw.request_guild_members_by_id(
+            self.id, user_id_or_ids, limit, presences
+        )
 
     def sync(self):
         warnings.warn(
-            'Guild.sync has been deprecated in place of Guild.request_guild_members',
-            DeprecationWarning)
+            "Guild.sync has been deprecated in place of Guild.request_guild_members",
+            DeprecationWarning,
+        )
 
         self.request_guild_members()
 
@@ -482,52 +513,75 @@ class Guild(SlottedModel, Permissible):
 
     def create_channel(self, *args, **kwargs):
         warnings.warn(
-            'Guild.create_channel will be deprecated soon, please use:'
-            ' Guild.create_text_channel or Guild.create_category or Guild.create_voice_channel',
-            DeprecationWarning)
+            "Guild.create_channel will be deprecated soon, please use:"
+            " Guild.create_text_channel or Guild.create_category or Guild.create_voice_channel",
+            DeprecationWarning,
+        )
 
         return self.client.api.guilds_channels_create(self.id, *args, **kwargs)
 
-    def create_category(self, name, permission_overwrites=[], position=None, reason=None):
+    def create_category(
+        self, name, permission_overwrites=[], position=None, reason=None
+    ):
         """
         Creates a category within the guild.
         """
         return self.client.api.guilds_channels_create(
-            self.id, ChannelType.GUILD_CATEGORY, name=name, permission_overwrites=permission_overwrites,
-            position=position, reason=reason,
+            self.id,
+            ChannelType.GUILD_CATEGORY,
+            name=name,
+            permission_overwrites=permission_overwrites,
+            position=position,
+            reason=reason,
         )
 
     def create_text_channel(
-            self,
-            name,
-            permission_overwrites=[],
-            parent_id=None,
-            nsfw=None,
-            position=None,
-            reason=None):
+        self,
+        name,
+        permission_overwrites=[],
+        parent_id=None,
+        nsfw=None,
+        position=None,
+        reason=None,
+    ):
         """
         Creates a text channel within the guild.
         """
         return self.client.api.guilds_channels_create(
-            self.id, ChannelType.GUILD_TEXT, name=name, permission_overwrites=permission_overwrites,
-            parent_id=parent_id, nsfw=nsfw, position=position, reason=reason,
+            self.id,
+            ChannelType.GUILD_TEXT,
+            name=name,
+            permission_overwrites=permission_overwrites,
+            parent_id=parent_id,
+            nsfw=nsfw,
+            position=position,
+            reason=reason,
         )
 
     def create_voice_channel(
-            self,
-            name,
-            permission_overwrites=[],
-            parent_id=None,
-            bitrate=None,
-            user_limit=None,
-            position=None,
-            reason=None):
+        self,
+        name,
+        permission_overwrites=[],
+        parent_id=None,
+        bitrate=None,
+        user_limit=None,
+        position=None,
+        reason=None,
+    ):
         """
         Creates a voice channel within the guild.
         """
         return self.client.api.guilds_channels_create(
-            self.id, ChannelType.GUILD_VOICE, name=name, permission_overwrites=permission_overwrites,
-            parent_id=parent_id, bitrate=bitrate, user_limit=user_limit, position=position, reason=None)
+            self.id,
+            ChannelType.GUILD_VOICE,
+            name=name,
+            permission_overwrites=permission_overwrites,
+            parent_id=parent_id,
+            bitrate=bitrate,
+            user_limit=user_limit,
+            position=position,
+            reason=None,
+        )
 
     def leave(self):
         return self.client.api.users_me_guilds_delete(self.id)
@@ -544,36 +598,40 @@ class Guild(SlottedModel, Permissible):
     def get_voice_regions(self):
         return self.client.api.guilds_voice_regions_list(self.id)
 
-    def get_icon_url(self, still_format='webp', animated_format='gif', size=1024):
+    def get_icon_url(self, still_format="webp", animated_format="gif", size=1024):
         if not self.icon:
-            return ''
+            return ""
 
-        if self.icon.startswith('a_'):
-            return 'https://cdn.discordapp.com/icons/{}/{}.{}?size={}'.format(
+        if self.icon.startswith("a_"):
+            return "https://cdn.discordapp.com/icons/{}/{}.{}?size={}".format(
                 self.id, self.icon, animated_format, size
             )
         else:
-            return 'https://cdn.discordapp.com/icons/{}/{}.{}?size={}'.format(
+            return "https://cdn.discordapp.com/icons/{}/{}.{}?size={}".format(
                 self.id, self.icon, still_format, size
             )
 
     def get_vanity_url(self):
         if not self.vanity_url_code:
-            return ''
+            return ""
 
-        return 'https://discord.gg/' + self.vanity_url_code
+        return "https://discord.gg/" + self.vanity_url_code
 
-    def get_splash_url(self, fmt='webp', size=1024):
+    def get_splash_url(self, fmt="webp", size=1024):
         if not self.splash:
-            return ''
+            return ""
 
-        return 'https://cdn.discordapp.com/splashes/{}/{}.{}?size={}'.format(self.id, self.splash, fmt, size)
+        return "https://cdn.discordapp.com/splashes/{}/{}.{}?size={}".format(
+            self.id, self.splash, fmt, size
+        )
 
-    def get_banner_url(self, fmt='webp', size=1024):
+    def get_banner_url(self, fmt="webp", size=1024):
         if not self.banner:
-            return ''
+            return ""
 
-        return 'https://cdn.discordapp.com/banners/{}/{}.{}?size={}'.format(self.id, self.banner, fmt, size)
+        return "https://cdn.discordapp.com/banners/{}/{}.{}?size={}".format(
+            self.id, self.banner, fmt, size
+        )
 
     @property
     def icon_url(self):
@@ -601,10 +659,7 @@ class Guild(SlottedModel, Permissible):
 
     def audit_log_iter(self, **kwargs):
         return Paginator(
-            self.client.api.guilds_auditlogs_list,
-            'before',
-            self.id,
-            **kwargs
+            self.client.api.guilds_auditlogs_list, "before", self.id, **kwargs
         )
 
     def get_audit_log_entries(self, *args, **kwargs):
@@ -659,9 +714,7 @@ class AuditLogActionTypes(object):
     MESSAGE_DELETE = 72
 
 
-GUILD_ACTIONS = (
-    AuditLogActionTypes.GUILD_UPDATE,
-)
+GUILD_ACTIONS = (AuditLogActionTypes.GUILD_UPDATE,)
 
 CHANNEL_ACTIONS = (
     AuditLogActionTypes.CHANNEL_CREATE,
@@ -705,9 +758,7 @@ EMOJI_ACTIONS = (
     AuditLogActionTypes.EMOJI_DELETE,
 )
 
-MESSAGE_ACTIONS = (
-    AuditLogActionTypes.MESSAGE_DELETE,
-)
+MESSAGE_ACTIONS = (AuditLogActionTypes.MESSAGE_DELETE,)
 
 
 class AuditLogObjectChange(SlottedModel):

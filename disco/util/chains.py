@@ -46,6 +46,7 @@ class Chain(object):
 
             # Otherwise return a chain
             return Chain(self)
+
         return _wrapped
 
     def _next(self):

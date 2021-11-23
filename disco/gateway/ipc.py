@@ -8,7 +8,7 @@ from disco.util.serializer import dump_function, load_function
 
 
 def get_random_str(size):
-    return ''.join([random.choice(string.printable) for _ in range(size)])
+    return "".join([random.choice(string.printable) for _ in range(size)])
 
 
 class IPCMessageType(object):
@@ -50,7 +50,7 @@ class GIPCProxy(LoggingClass):
             try:
                 result = func(self.obj)
             except Exception:
-                self.log.exception('Failed to EXECUTE: ')
+                self.log.exception("Failed to EXECUTE: ")
                 result = None
 
             self.send(IPCMessageType.RESPONSE, (nonce, result))
@@ -66,7 +66,7 @@ class GIPCProxy(LoggingClass):
             try:
                 self.handle(mtype, data)
             except Exception:
-                self.log.exception('Error in GIPCProxy:')
+                self.log.exception("Error in GIPCProxy:")
 
     def execute(self, func):
         nonce = get_random_str(32)

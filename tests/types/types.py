@@ -25,42 +25,37 @@ class _C(Model):
 
 class TestModel(TestCase):
     def test_model_simple_loading(self):
-        inst = _A(dict(a=1, b=1.1, c='test'))
+        inst = _A(dict(a=1, b=1.1, c="test"))
         self.assertEqual(inst.a, 1)
         self.assertEqual(inst.b, 1.1)
-        self.assertEqual(inst.c, 'test')
+        self.assertEqual(inst.c, "test")
 
     def test_model_load_into(self):
         inst = _A()
-        _A.load_into(inst, dict(a=1, b=1.1, c='test'))
+        _A.load_into(inst, dict(a=1, b=1.1, c="test"))
         self.assertEqual(inst.a, 1)
         self.assertEqual(inst.b, 1.1)
-        self.assertEqual(inst.c, 'test')
+        self.assertEqual(inst.c, "test")
 
     def test_model_loading_consume(self):
         obj = {
-            'a': {
-                'a': 1,
-                'b': 2.2,
-                'c': '3',
-                'd': 'wow',
+            "a": {
+                "a": 1,
+                "b": 2.2,
+                "c": "3",
+                "d": "wow",
             },
-            'b': {
-                'a': 3,
-                'b': 2.2,
-                'c': '1',
-                'z': 'wtf'
-            },
-            'g': 'lmao'
+            "b": {"a": 3, "b": 2.2, "c": "1", "z": "wtf"},
+            "g": "lmao",
         }
 
         inst = _C()
         inst.load(obj, consume=True)
 
         self.assertEqual(inst.a.a, 1)
-        self.assertEqual(inst.b.c, '1')
+        self.assertEqual(inst.b.c, "1")
 
-        self.assertEqual(obj, {'a': {'d': 'wow'}, 'b': {'z': 'wtf'}, 'g': 'lmao'})
+        self.assertEqual(obj, {"a": {"d": "wow"}, "b": {"z": "wtf"}, "g": "lmao"})
 
     def test_model_field_enum(self):
         class en(object):
@@ -73,19 +68,19 @@ class TestModel(TestCase):
 
         self.assertEqual(_M(field=en.A).field, en.A)
         self.assertEqual(_M(field=2).field, en.B)
-        self.assertEqual(_M(field='3').field, None)
-        self.assertEqual(_M(field='a').field, en.A)
-        self.assertEqual(_M(field='A').field, en.A)
+        self.assertEqual(_M(field="3").field, None)
+        self.assertEqual(_M(field="a").field, en.A)
+        self.assertEqual(_M(field="A").field, en.A)
 
     def test_model_field_snowflake(self):
         class _M(Model):
             field = Field(snowflake)
 
         self.assertEqual(_M(field=327936274851954688).field, 327936274851954688)
-        self.assertEqual(_M(field='327936274851954688').field, 327936274851954688)
+        self.assertEqual(_M(field="327936274851954688").field, 327936274851954688)
 
         with self.assertRaises(ConversionError):
-            _M(field='asdf')
+            _M(field="asdf")
 
     def test_model_field_cast(self):
         class Object(object):
@@ -98,5 +93,5 @@ class TestModel(TestCase):
         class _M(Model):
             field = Field(Object, cast=six.text_type)
 
-        inst = _M(field=u'wowza')
-        self.assertEqual(inst.to_dict(), {'field': u'wowza'})
+        inst = _M(field=u"wowza")
+        self.assertEqual(inst.to_dict(), {"field": u"wowza"})

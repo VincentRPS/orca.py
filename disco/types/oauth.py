@@ -47,17 +47,21 @@ class Application(SlottedModel):
 
         return any(user_id == member.user.id for member in self.team.members)
 
-    def get_icon_url(self, fmt='webp', size=1024):
+    def get_icon_url(self, fmt="webp", size=1024):
         if not self.icon:
-            return ''
+            return ""
 
-        return 'https://cdn.discordapp.com/app-icons/{}/{}.{}?size={}'.format(self.id, self.icon, fmt, size)
+        return "https://cdn.discordapp.com/app-icons/{}/{}.{}?size={}".format(
+            self.id, self.icon, fmt, size
+        )
 
-    def get_cover_image_url(self, fmt='webp', size=1024):
+    def get_cover_image_url(self, fmt="webp", size=1024):
         if not self.cover_image:
-            return ''
+            return ""
 
-        return 'https://cdn.discordapp.com/app-icons/{}/{}.{}?size={}'.format(self.id, self.cover_image, fmt, size)
+        return "https://cdn.discordapp.com/app-icons/{}/{}.{}?size={}".format(
+            self.id, self.cover_image, fmt, size
+        )
 
     @property
     def icon_url(self):

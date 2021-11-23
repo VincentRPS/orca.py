@@ -5,14 +5,15 @@ class Paginator(object):
     """
     Implements a class which provides paginated iteration over an endpoint.
     """
+
     def __init__(self, func, sort_key, *args, **kwargs):
         self.func = func
         self.sort_key = sort_key
         self.args = args
         self.kwargs = kwargs
 
-        self._key = kwargs.pop('key', operator.attrgetter('id'))
-        self._bulk = kwargs.pop('bulk', False)
+        self._key = kwargs.pop("key", operator.attrgetter("id"))
+        self._bulk = kwargs.pop("bulk", False)
         self._sort_key_value = kwargs.pop(self.sort_key, None)
         self._buffer = []
 

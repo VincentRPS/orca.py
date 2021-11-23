@@ -18,7 +18,7 @@ class HashMap(dict):
 
     def find(self, predicate):
         if not callable(predicate):
-            raise TypeError('predicate must be callable')
+            raise TypeError("predicate must be callable")
 
         for obj in self.values():
             if predicate(obj):
@@ -39,12 +39,12 @@ class HashMap(dict):
 
     def filter(self, predicate):
         if not callable(predicate):
-            raise TypeError('predicate must be callable')
+            raise TypeError("predicate must be callable")
         return filter(predicate, self.values())
 
     def map(self, predicate):
         if not callable(predicate):
-            raise TypeError('predicate must be callable')
+            raise TypeError("predicate must be callable")
         return map(predicate, self.values())
 
 

@@ -14,6 +14,7 @@ from disco.gateway.client import *
 from disco.gateway.events import *
 from disco.gateway.ipc import *
 from disco.gateway.packets import *
+
 # Not imported, GIPC is required but not provided by default
 # from disco.gateway.sharder import *
 from disco.types.base import *

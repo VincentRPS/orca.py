@@ -5,17 +5,17 @@ import logging
 
 
 LEVEL_OVERRIDES = {
-    'requests': logging.WARNING,
+    "requests": logging.WARNING,
 }
 
-LOG_FORMAT = '[%(levelname)s] %(asctime)s - %(name)s:%(lineno)d - %(message)s'
+LOG_FORMAT = "[%(levelname)s] %(asctime)s - %(name)s:%(lineno)d - %(message)s"
 
 
 def setup_logging(**kwargs):
-    kwargs.setdefault('format', LOG_FORMAT)
+    kwargs.setdefault("format", LOG_FORMAT)
 
     # Setup warnings module correctly
-    warnings.simplefilter('always', DeprecationWarning)
+    warnings.simplefilter("always", DeprecationWarning)
     logging.captureWarnings(True)
 
     # Pass through our basic configuration
@@ -27,7 +27,7 @@ def setup_logging(**kwargs):
 
 
 class LoggingClass(object):
-    __slots__ = ['_log']
+    __slots__ = ["_log"]
 
     @property
     def log(self):

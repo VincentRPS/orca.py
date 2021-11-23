@@ -21,7 +21,9 @@ from disco.util.serializer import dump_function, load_function
 def run_shard(config, shard_id, pipe):
     setup_logging(
         level=logging.INFO,
-        format='{} [%(levelname)s] %(asctime)s - %(name)s:%(lineno)d - %(message)s'.format(shard_id),
+        format="{} [%(levelname)s] %(asctime)s - %(name)s:%(lineno)d - %(message)s".format(
+            shard_id
+        ),
     )
 
     config.shard_id = shard_id
@@ -47,17 +49,19 @@ class ShardHelper(object):
             result.set(func(self.bot))
             return result
 
-        return self.bot.sharder.call(('run_on', ), sid, dump_function(func))
+        return self.bot.sharder.call(("run_on",), sid, dump_function(func))
 
     def all(self, func, timeout=None):
         pool = gevent.pool.Pool(self.count)
-        return dict(zip(
-            range(self.count),
-            pool.imap(
-                lambda i: self.on(i, func).wait(timeout=timeout),
+        return dict(
+            zip(
                 range(self.count),
-            ),
-        ))
+                pool.imap(
+                    lambda i: self.on(i, func).wait(timeout=timeout),
+                    range(self.count),
+                ),
+            )
+        )
 
     def for_id(self, sid, func):
         shard = calculate_shard(self.count, sid)
@@ -69,7 +73,7 @@ class AutoSharder(object):
         self.config = config
         self.client = APIClient(config.token)
         self.shards = {}
-        self.config.shard_count = self.client.gateway_bot_get()['shards']
+        self.config.shard_count = self.client.gateway_bot_get()["shards"]
 
     def run_on(self, sid, raw):
         func = load_function(raw)
@@ -85,24 +89,26 @@ class AutoSharder(object):
 
         logging.basicConfig(
             level=logging.INFO,
-            format='{} [%(levelname)s] %(asctime)s - %(name)s:%(lineno)d - %(message)s'.format(id),
+            format="{} [%(levelname)s] %(asctime)s - %(name)s:%(lineno)d - %(message)s".format(
+                id
+            ),
         )
 
     @staticmethod
     def dumps(data):
         if isinstance(data, (string_types, integer_types, bool, list, set, dict)):
-            return '\x01' + marshal.dumps(data)
-        elif isinstance(data, object) and data.__class__.__name__ == 'code':
-            return '\x01' + marshal.dumps(data)
+            return "\x01" + marshal.dumps(data)
+        elif isinstance(data, object) and data.__class__.__name__ == "code":
+            return "\x01" + marshal.dumps(data)
         else:
-            return '\x02' + pickle.dumps(data)
+            return "\x02" + pickle.dumps(data)
 
     @staticmethod
     def loads(data):
         enc_type = data[0]
-        if enc_type == '\x01':
+        if enc_type == "\x01":
             return marshal.loads(data[1:])
-        elif enc_type == '\x02':
+        elif enc_type == "\x02":
             return pickle.loads(data[1:])
 
     def start_shard(self, sid):

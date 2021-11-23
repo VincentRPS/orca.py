@@ -41,17 +41,17 @@ class ClientConfig(Config):
         should be either 'json' or 'etf'.
     """
 
-    token = ''
+    token = ""
     shard_id = 0
     shard_count = 1
     guild_subscriptions = True
     max_reconnects = 5
-    log_level = 'info'
+    log_level = "info"
 
     manhole_enable = False
-    manhole_bind = ('127.0.0.1', 8484)
+    manhole_bind = ("127.0.0.1", 8484)
 
-    encoder = 'json'
+    encoder = "json"
 
 
 class Client(LoggingClass):
@@ -86,6 +86,7 @@ class Client(LoggingClass):
     manhole : Optional[`BackdoorServer`]
         Gevent backdoor server (if the manhole is enabled).
     """
+
     def __init__(self, config):
         super(Client, self).__init__()
         self.config = config
@@ -95,19 +96,21 @@ class Client(LoggingClass):
 
         self.api = APIClient(self.config.token, self)
         self.gw = GatewayClient(self, self.config.max_reconnects, self.config.encoder)
-        self.state = State(self, StateConfig(self.config.get('state', {})))
+        self.state = State(self, StateConfig(self.config.get("state", {})))
 
         if self.config.manhole_enable:
             self.manhole_locals = {
-                'client': self,
-                'state': self.state,
-                'api': self.api,
-                'gw': self.gw,
+                "client": self,
+                "state": self.state,
+                "api": self.api,
+                "gw": self.gw,
             }
 
-            self.manhole = DiscoBackdoorServer(self.config.manhole_bind,
-                                               banner='Disco Manhole',
-                                               localf=lambda: self.manhole_locals)
+            self.manhole = DiscoBackdoorServer(
+                self.config.manhole_bind,
+                banner="Disco Manhole",
+                localf=lambda: self.manhole_locals,
+            )
             self.manhole.start()
 
     def update_presence(self, status, game=None, afk=False, since=0.0):
@@ -126,20 +129,20 @@ class Client(LoggingClass):
             How long the client has been afk for (in seconds).
         """
         if game and not isinstance(game, Game):
-            raise TypeError('Game must be a Game model')
+            raise TypeError("Game must be a Game model")
 
         if status is Status.IDLE and not since:
             since = int(time.time() * 1000)
 
         payload = {
-            'afk': afk,
-            'since': since,
-            'status': status.lower(),
-            'game': None,
+            "afk": afk,
+            "since": since,
+            "status": status.lower(),
+            "game": None,
         }
 
         if game:
-            payload['game'] = game.to_dict()
+            payload["game"] = game.to_dict()
 
         self.gw.send(OPCode.STATUS_UPDATE, payload)
 

@@ -6,13 +6,13 @@ from six import integer_types
 from disco.bot.parser import ArgumentSet, ArgumentError
 from disco.util.functional import simple_cached_property
 
-ARGS_REGEX = '(?: ((?:\n|.)*)$|$)'
-ARGS_UNGROUPED_REGEX = '(?: (?:\n|.)*$|$)'
+ARGS_REGEX = "(?: ((?:\n|.)*)$|$)"
+ARGS_UNGROUPED_REGEX = "(?: (?:\n|.)*$|$)"
 SPLIT_SPACES_NO_QUOTE = re.compile(r'["|\']([^"\']+)["|\']|(\S+)')
 
-USER_MENTION_RE = re.compile('<@!?([0-9]+)>')
-ROLE_MENTION_RE = re.compile('<@&([0-9]+)>')
-CHANNEL_MENTION_RE = re.compile('<#([0-9]+)>')
+USER_MENTION_RE = re.compile("<@!?([0-9]+)>")
+ROLE_MENTION_RE = re.compile("<@&([0-9]+)>")
+CHANNEL_MENTION_RE = re.compile("<#([0-9]+)>")
 
 
 class CommandLevels(object):
@@ -56,19 +56,19 @@ class CommandEvent(object):
         self.args = []
 
         if self.match.group(2):
-            self.args = [i for i in self.match.group(2).strip().split(' ') if i]
+            self.args = [i for i in self.match.group(2).strip().split(" ") if i]
 
     @property
     def codeblock(self):
-        if '`' not in self.msg.content:
-            return ' '.join(self.args)
+        if "`" not in self.msg.content:
+            return " ".join(self.args)
 
-        _, src = self.msg.content.split('`', 1)
-        src = '`' + src
+        _, src = self.msg.content.split("`", 1)
+        src = "`" + src
 
-        if src.startswith('```') and src.endswith('```'):
+        if src.startswith("```") and src.endswith("```"):
             src = src[3:-3]
-        elif src.startswith('`') and src.endswith('`'):
+        elif src.startswith("`") and src.endswith("`"):
             src = src[1:-1]
 
         return src
@@ -107,6 +107,7 @@ class CommandError(Exception):
     An exception which is thrown when the arguments for a command are invalid,
     or don't match the command's specifications.
     """
+
     def __init__(self, msg):
         self.msg = msg
 
@@ -133,6 +134,7 @@ class Command(object):
     is_regex : Optional[bool]
         Whether the triggers for this command should be treated as raw regex.
     """
+
     def __init__(self, plugin, func, trigger, *args, **kwargs):
         self.plugin = plugin
         self.func = func
@@ -159,19 +161,20 @@ class Command(object):
         return self.func(*args, **kwargs)
 
     def get_docstring(self):
-        return (self.func.__doc__ or '').format(**self.context)
+        return (self.func.__doc__ or "").format(**self.context)
 
     def update(
-            self,
-            args=None,
-            level=None,
-            aliases=None,
-            group=None,
-            is_regex=None,
-            oob=False,
-            context=None,
-            parser=False,
-            metadata=None):
+        self,
+        args=None,
+        level=None,
+        aliases=None,
+        group=None,
+        is_regex=None,
+        oob=False,
+        context=None,
+        parser=False,
+        metadata=None,
+    ):
         self.triggers += aliases or []
 
         def resolve_role(ctx, rid):
@@ -184,7 +187,9 @@ class Command(object):
                 else:
                     return ctx.msg.client.state.users.get(uid)
             else:
-                return ctx.msg.client.state.users.select_one(username=uid[0], discriminator=uid[1])
+                return ctx.msg.client.state.users.select_one(
+                    username=uid[0], discriminator=uid[1]
+                )
 
         def resolve_channel(ctx, cid):
             if isinstance(cid, integer_types):
@@ -197,12 +202,19 @@ class Command(object):
 
         if args:
             self.raw_args = args
-            self.args = ArgumentSet.from_string(args, {
-                'user': self.mention_type([resolve_user], USER_MENTION_RE, user=True),
-                'role': self.mention_type([resolve_role], ROLE_MENTION_RE),
-                'channel': self.mention_type([resolve_channel], CHANNEL_MENTION_RE, allow_plain=True),
-                'guild': self.mention_type([resolve_guild]),
-            })
+            self.args = ArgumentSet.from_string(
+                args,
+                {
+                    "user": self.mention_type(
+                        [resolve_user], USER_MENTION_RE, user=True
+                    ),
+                    "role": self.mention_type([resolve_role], ROLE_MENTION_RE),
+                    "channel": self.mention_type(
+                        [resolve_channel], CHANNEL_MENTION_RE, allow_plain=True
+                    ),
+                    "guild": self.mention_type([resolve_guild]),
+                },
+            )
 
         self.level = level
         self.group = group
@@ -219,8 +231,8 @@ class Command(object):
         def _f(ctx, raw):
             if raw.isdigit():
                 resolved = int(raw)
-            elif user and raw.count('#') == 1 and raw.split('#')[-1].isdigit():
-                username, discrim = raw.split('#')
+            elif user and raw.count("#") == 1 and raw.split("#")[-1].isdigit():
+                username, discrim = raw.split("#")
                 resolved = (username, int(discrim))
             elif reg:
                 res = reg.match(raw)
@@ -230,16 +242,17 @@ class Command(object):
                     if allow_plain:
                         resolved = raw
                     else:
-                        raise TypeError('Invalid mention: {}'.format(raw))
+                        raise TypeError("Invalid mention: {}".format(raw))
             else:
-                raise TypeError('Invalid mention: {}'.format(raw))
+                raise TypeError("Invalid mention: {}".format(raw))
 
             for getter in getters:
                 obj = getter(ctx, resolved)
                 if obj:
                     return obj
 
-            raise TypeError('Cannot resolve mention: {}'.format(raw))
+            raise TypeError("Cannot resolve mention: {}".format(raw))
+
         return _f
 
     @simple_cached_property
@@ -254,18 +267,20 @@ class Command(object):
         The regex string that defines/triggers this command.
         """
         if self.is_regex:
-            return '|'.join(self.triggers)
+            return "|".join(self.triggers)
         else:
-            group = ''
+            group = ""
             if self.group:
                 if self.group in self.plugin.bot.group_abbrev:
                     rest = self.plugin.bot.group_abbrev[self.group]
-                    group = '{}(?:{}) '.format(rest, ''.join(c + u'?' for c in self.group[len(rest):]))
+                    group = "{}(?:{}) ".format(
+                        rest, "".join(c + u"?" for c in self.group[len(rest) :])
+                    )
                 else:
-                    group = self.group + ' '
-            return ('^{}({})' if grouped else '^{}(?:{})').format(
+                    group = self.group + " "
+            return ("^{}({})" if grouped else "^{}(?:{})").format(
                 group,
-                '|'.join(self.triggers),
+                "|".join(self.triggers),
             ) + (ARGS_REGEX if grouped else ARGS_UNGROUPED_REGEX)
 
     def execute(self, event):
@@ -282,12 +297,14 @@ class Command(object):
 
         if self.args:
             if len(event.args) < self.args.required_length:
-                raise CommandError(u'Command {} requires {} argument(s) (`{}`) passed {}'.format(
-                    event.name,
-                    self.args.required_length,
-                    self.raw_args,
-                    len(event.args),
-                ))
+                raise CommandError(
+                    u"Command {} requires {} argument(s) (`{}`) passed {}".format(
+                        event.name,
+                        self.args.required_length,
+                        self.raw_args,
+                        len(event.args),
+                    )
+                )
 
             try:
                 parsed_kwargs = self.args.parse(event.args, ctx=event)
@@ -295,10 +312,14 @@ class Command(object):
                 raise CommandError(e.args[0])
         elif self.parser:
             event.parser = self.parser
-            parsed_kwargs['args'] = self.parser.parse_args(
-                [i[0] or i[1] for i in SPLIT_SPACES_NO_QUOTE.findall(' '.join(event.args))])
+            parsed_kwargs["args"] = self.parser.parse_args(
+                [
+                    i[0] or i[1]
+                    for i in SPLIT_SPACES_NO_QUOTE.findall(" ".join(event.args))
+                ]
+            )
 
         kwargs = {}
         kwargs.update(self.context)
         kwargs.update(parsed_kwargs)
-        return self.plugin.dispatch('command', self, event, **kwargs)
+        return self.plugin.dispatch("command", self, event, **kwargs)

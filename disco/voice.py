@@ -11,6 +11,7 @@ from telecom import TelecomConnection, AvConvPlayable
 
 try:
     import youtube_dl
+
     ytdl = youtube_dl.YoutubeDL()
 except ImportError:
     ytdl = None
@@ -20,26 +21,32 @@ class YoutubeDLPlayable(AvConvPlayable):
     def __init__(self, url):
         url = next(self.from_url(url), None)
         if not url:
-            raise Exception('No result found for URL {}'.format(url))
+            raise Exception("No result found for URL {}".format(url))
         super(YoutubeDLPlayable, self).__init__(url)
 
     @classmethod
     def from_url(cls, url):
-        assert ytdl is not None, 'YoutubeDL isn\'t installed'
+        assert ytdl is not None, "YoutubeDL isn't installed"
 
         results = ytdl.extract_info(url, download=False)
-        if 'entries' not in results:
+        if "entries" not in results:
             results = [results]
         else:
-            results = results['entries']
+            results = results["entries"]
 
         for result in results:
-            audio_formats = [fmt for fmt in result['formats'] if fmt['vcodec'] == 'none' and fmt['acodec'] == 'opus']
+            audio_formats = [
+                fmt
+                for fmt in result["formats"]
+                if fmt["vcodec"] == "none" and fmt["acodec"] == "opus"
+            ]
             if not audio_formats:
                 raise Exception("Couldn't find valid audio format for {}".format(url))
 
-            best_audio_format = sorted(audio_formats, key=lambda i: i['abr'], reverse=True)[0]
-            yield AvConvPlayable(best_audio_format['url'])
+            best_audio_format = sorted(
+                audio_formats, key=lambda i: i["abr"], reverse=True
+            )[0]
+            yield AvConvPlayable(best_audio_format["url"])
 
 
 class VoiceConnection(object):
@@ -50,7 +57,7 @@ class VoiceConnection(object):
         self.enable_events = enable_events
         self._conn = None
         self._voice_server_update_listener = self.client.events.on(
-            'VoiceServerUpdate',
+            "VoiceServerUpdate",
             self._on_voice_server_update,
         )
         self._event_reader_greenlet = None
@@ -92,7 +99,7 @@ class VoiceConnection(object):
 
     @classmethod
     def from_channel(self, channel, **kwargs):
-        assert channel.is_voice, 'Cannot connect to a non voice channel'
+        assert channel.is_voice, "Cannot connect to a non voice channel"
         conn = VoiceConnection(channel.client, channel.guild_id, **kwargs)
         conn.connect(channel.id)
         return conn
@@ -105,7 +112,7 @@ class VoiceConnection(object):
         self._send_voice_state_update()
 
     def connect(self, channel_id):
-        assert self._conn is None, 'Already connected'
+        assert self._conn is None, "Already connected"
 
         self.set_channel(channel_id)
 
@@ -122,7 +129,7 @@ class VoiceConnection(object):
             self._conn.set_event_pipe(w)
 
     def disconnect(self):
-        assert self._conn is not None, 'Not connected'
+        assert self._conn is not None, "Not connected"
 
         # Send disconnection
         self.set_channel(None)
@@ -149,26 +156,29 @@ class VoiceConnection(object):
         self._conn.update_server_info(event.endpoint, event.token)
 
     def _send_voice_state_update(self):
-        self.client.gw.send(OPCode.VOICE_STATE_UPDATE, {
-            'self_mute': self._mute,
-            'self_deaf': self._deaf,
-            'self_video': False,
-            'guild_id': self.guild_id,
-            'channel_id': self.channel_id,
-        })
+        self.client.gw.send(
+            OPCode.VOICE_STATE_UPDATE,
+            {
+                "self_mute": self._mute,
+                "self_deaf": self._deaf,
+                "self_video": False,
+                "guild_id": self.guild_id,
+                "channel_id": self.channel_id,
+            },
+        )
 
     def _event_reader(self, fd):
         if not make_nonblocking(fd):
-            raise Exception('failed to make event pipe non-blocking')
+            raise Exception("failed to make event pipe non-blocking")
 
         buff = ""
         while True:
-            buff += nb_read(fd, 2048).decode('utf-8')
+            buff += nb_read(fd, 2048).decode("utf-8")
 
-            parts = buff.split('\n')
+            parts = buff.split("\n")
             for message in parts[:-1]:
                 event = json.loads(message)
-                self.events.emit(event['e'], event['d'])
+                self.events.emit(event["e"], event["d"])
 
             if len(parts) > 1:
                 buff = parts[-1]

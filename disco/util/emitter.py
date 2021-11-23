@@ -43,7 +43,15 @@ class Event(object):
 
 
 class EmitterSubscription(object):
-    def __init__(self, events, callback, priority=Priority.NONE, conditional=None, metadata=None, max_queue_size=8096):
+    def __init__(
+        self,
+        events,
+        callback,
+        priority=Priority.NONE,
+        conditional=None,
+        metadata=None,
+        max_queue_size=8096,
+    ):
         self.events = events
         self.callback = callback
         self.priority = priority
@@ -111,9 +119,7 @@ class EmitterSubscription(object):
 
 class Emitter(LoggingClass):
     def __init__(self):
-        self.event_handlers = {
-            k: defaultdict(list) for k in Priority.ALL
-        }
+        self.event_handlers = {k: defaultdict(list) for k in Priority.ALL}
 
     def emit(self, name, *args, **kwargs):
         # First execute all BEFORE handlers sequentially
@@ -121,24 +127,28 @@ class Emitter(LoggingClass):
             try:
                 listener(*args, **kwargs)
             except Exception as e:
-                self.log.warning('BEFORE {} event handler `{}` raised {}: {}'.format(
-                    name,
-                    listener.callback.__name__,
-                    e.__class__.__name__,
-                    e,
-                ))
+                self.log.warning(
+                    "BEFORE {} event handler `{}` raised {}: {}".format(
+                        name,
+                        listener.callback.__name__,
+                        e.__class__.__name__,
+                        e,
+                    )
+                )
 
         # Next execute all AFTER handlers sequentially
         for listener in self.event_handlers[Priority.AFTER].get(name, []):
             try:
                 listener(*args, **kwargs)
             except Exception as e:
-                self.log.warning('AFTER {} event handler `{}` raised {}: {}'.format(
-                    name,
-                    listener.callback.__name__,
-                    e.__class__.__name__,
-                    e,
-                ))
+                self.log.warning(
+                    "AFTER {} event handler `{}` raised {}: {}".format(
+                        name,
+                        listener.callback.__name__,
+                        e.__class__.__name__,
+                        e,
+                    )
+                )
 
         # Next enqueue all sequential handlers. This just puts stuff into a queue
         #  without blocking, so we don't have to worry too much
@@ -160,9 +170,9 @@ class Emitter(LoggingClass):
             result.set(e)
             li.detach()
 
-        li = self.on(*args + (_f, ))
+        li = self.on(*args + (_f,))
 
-        return result.wait(kwargs.pop('timeout', None))
+        return result.wait(kwargs.pop("timeout", None))
 
     def wait(self, *args, **kwargs):
         result = AsyncResult()
@@ -172,4 +182,4 @@ class Emitter(LoggingClass):
             if match(e):
                 result.set(e)
 
-        return result.wait(kwargs.pop('timeout', None))
+        return result.wait(kwargs.pop("timeout", None))
