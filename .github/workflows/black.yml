@@ -28,7 +28,7 @@ jobs:
         uses: wearerequired/lint-action@v1
         with:
           black: true
-          flake8: true
+          flake8: false
           auto_fix: true
           git_name: Orca
           git_email: bot@orca.com.py
