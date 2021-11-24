@@ -1,7 +1,7 @@
 # Orca
 
-[![PyPI](https://img.shields.io/pypi/l/orca-py.svg)](https://pypi.python.org/pypi/orca.py/)
-[![PyPI](https://img.shields.io/pypi/v/orca-py.svg)](https://pypi.python.org/pypi/orca.py/)
+[![PyPI](https://img.shields.io/pypi/l/orca.py.svg)](https://pypi.python.org/pypi/orca.py/)
+[![PyPI](https://img.shields.io/pypi/v/orca.py.svg)](https://pypi.python.org/pypi/orca.py/)
 <!--[![TravisCI](https://img.shields.io/travis/b1naryth1ef/orca.svg)](https://travis-ci.org/VincentRPS/orca.py/) -->
 
 Orca is an extensive and extendable Python 3.x library for the [Discord API](https://discord.com/developers/docs/intro). orca boasts the following major features:
