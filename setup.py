@@ -30,7 +30,7 @@ setup(
         "flake8-quotes==3.3.1",
         "flake8-comprehensions==3.7.0",
         "flake8-commas==2.1.0",
-        "flake8-builtins==1.4.1",
+        "flake8-builtins==1.5.3",
     ],
     classifiers=[
         "Development Status :: 4 - Beta",
