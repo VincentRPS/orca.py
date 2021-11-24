@@ -7,6 +7,6 @@ flask==1.0
 pyyaml==6.0
 youtube_dl==2021.6.6
 erlpack==0.3.2
-ujson==1.35
+ujson==4.3.0
 wsaccel==0.6.3
 gipc==0.6.0
