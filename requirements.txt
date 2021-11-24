@@ -3,7 +3,7 @@ requests==2.26.0
 six==1.16.0
 websocket-client==1.2.1
 telecom-py==0.0.4
-flask==0.12.2
+flask==1.0
 pyyaml==6.0
 youtube_dl==2018.1.21
 erlpack==0.3.2
