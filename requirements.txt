@@ -8,5 +8,5 @@ pyyaml==6.0
 youtube_dl==2018.1.21
 erlpack==0.3.2
 ujson==1.35
-wsaccel==0.6.2
+wsaccel==0.6.3
 gipc==0.6.0
