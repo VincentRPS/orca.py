@@ -2,7 +2,6 @@ gevent==21.8.0
 requests==2.26.0
 six==1.16.0
 websocket-client==1.2.1
-telecom-py==0.0.4
 flask==1.0
 pyyaml==6.0
 youtube_dl==2021.6.6
