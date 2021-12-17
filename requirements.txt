@@ -4,7 +4,7 @@ six==1.16.0
 websocket-client==1.2.3
 flask==1.0
 pyyaml==6.0
-youtube_dl==2021.6.6
+youtube_dl==2021.12.17
 erlpack==0.3.3
 ujson==4.3.0
 wsaccel==0.6.3
