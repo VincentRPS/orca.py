@@ -28,7 +28,7 @@ setup(
         "pytest-benchmark==3.4.1",
         "flake8-tuple==0.4.1",
         "flake8-quotes==3.3.1",
-        "flake8-comprehensions==3.7.0",
+        "flake8-comprehensions==3.8.0",
         "flake8-commas==2.1.0",
         "flake8-builtins==1.5.3",
     ],
