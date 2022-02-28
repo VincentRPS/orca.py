@@ -22,7 +22,7 @@ setup(
     include_package_data=True,
     install_requires=requirements,
     test_suite="tests",
-    setup_requires=["pytest-runner==5.3.1"],
+    setup_requires=["pytest-runner==6.0.0"],
     tests_require=[
         "pytest==6.2.5",
         "pytest-benchmark==3.4.1",
