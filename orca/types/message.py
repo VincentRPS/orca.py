@@ -684,10 +684,10 @@ class Message(SlottedModel):
         """
 
         def replace_user(u):
-            return u"@" + six.text_type(u)
+            return "@" + six.text_type(u)
 
         def replace_role(r):
-            return u"@" + six.text_type(r)
+            return "@" + six.text_type(r)
 
         def replace_channel(c):
             return six.text_type(c)

@@ -161,10 +161,10 @@ class Channel(SlottedModel, Permissible):
         )
 
     def __str__(self):
-        return u"#{}".format(self.name) if self.name else six.text_type(self.id)
+        return "#{}".format(self.name) if self.name else six.text_type(self.id)
 
     def __repr__(self):
-        return u"<Channel {} ({})>".format(self.id, self)
+        return "<Channel {} ({})>".format(self.id, self)
 
     def get_permissions(self, user):
         """

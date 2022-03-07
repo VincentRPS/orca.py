@@ -205,7 +205,7 @@ class ArgumentSet(object):
                         raw[idx] = self.convert(ctx, arg.types, r)
                     except Exception:
                         raise ArgumentError(
-                            u"cannot convert `{}` to `{}`".format(
+                            "cannot convert `{}` to `{}`".format(
                                 S(r),
                                 ", ".join(arg.types),
                             )
