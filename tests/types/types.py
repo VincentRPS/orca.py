@@ -93,5 +93,5 @@ class TestModel(TestCase):
         class _M(Model):
             field = Field(Object, cast=six.text_type)
 
-        inst = _M(field=u"wowza")
-        self.assertEqual(inst.to_dict(), {"field": u"wowza"})
+        inst = _M(field="wowza")
+        self.assertEqual(inst.to_dict(), {"field": "wowza"})

@@ -6,7 +6,7 @@ from tests.utils import APIClient
 class TestReason(TestCase):
     def test_set_unicode_reason(self):
         api = APIClient()
-        api.guilds_channels_modify(1, 2, 3, reason=u"yo \U0001F4BF test")
+        api.guilds_channels_modify(1, 2, 3, reason="yo \U0001F4BF test")
 
         _, kwargs = api.http.calls[0]
         self.assertEqual(

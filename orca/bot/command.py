@@ -274,7 +274,7 @@ class Command(object):
                 if self.group in self.plugin.bot.group_abbrev:
                     rest = self.plugin.bot.group_abbrev[self.group]
                     group = "{}(?:{}) ".format(
-                        rest, "".join(c + u"?" for c in self.group[len(rest) :])
+                        rest, "".join(c + "?" for c in self.group[len(rest) :])
                     )
                 else:
                     group = self.group + " "
@@ -298,7 +298,7 @@ class Command(object):
         if self.args:
             if len(event.args) < self.args.required_length:
                 raise CommandError(
-                    u"Command {} requires {} argument(s) (`{}`) passed {}".format(
+                    "Command {} requires {} argument(s) (`{}`) passed {}".format(
                         event.name,
                         self.args.required_length,
                         self.raw_args,

@@ -71,7 +71,7 @@ class GuildEmoji(Emoji):
     animated = Field(bool)
 
     def __str__(self):
-        return u"<{}:{}:{}>".format("a" if self.animated else "", self.name, self.id)
+        return "<{}:{}:{}>".format("a" if self.animated else "", self.name, self.id)
 
     def update(self, **kwargs):
         return self.client.api.guilds_emojis_modify(self.guild_id, self.id, **kwargs)
