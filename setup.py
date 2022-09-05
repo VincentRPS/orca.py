@@ -24,7 +24,7 @@ setup(
     test_suite="tests",
     setup_requires=["pytest-runner==5.3.1"],
     tests_require=[
-        "pytest==6.2.5",
+        "pytest==7.1.3",
         "pytest-benchmark==3.4.1",
         "flake8-tuple==0.4.1",
         "flake8-quotes==3.3.1",
